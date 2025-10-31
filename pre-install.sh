@@ -15,9 +15,6 @@ curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scrip
 chmod 700 get_helm.sh
 ./get_helm.sh
 
-# Install git
-yum install git -y
-
 # Install docker
 sudo yum update -y
 sudo yum install -y docker
