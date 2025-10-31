@@ -7,7 +7,7 @@ redpanda:
     kafka_api:
         - address: 0.0.0.0
           port: 9092
-        - address: kubernetes-vm
+        - address: 192.168.49.1
           port: 9093
           name: external
     admin:
@@ -17,7 +17,7 @@ redpanda:
         address: 127.0.0.1
         port: 33145
     advertised_kafka_api:
-        - address: kubernetes-vm
+        - address: 192.168.49.1
           port: 9092
     developer_mode: true
     auto_create_topics_enabled: true
