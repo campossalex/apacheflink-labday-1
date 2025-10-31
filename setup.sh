@@ -169,7 +169,7 @@ main() {
 
   # Waiting VVP to respond
   echo "> Waiting VVP to be ready..."
-  while ! curl --silent --fail --output /dev/null kubernetes-vm:30002/api/v1/status 
+  while ! curl --silent --fail --output /dev/null localhost:8080/api/v1/status 
   do
       sleep 1 
   done
