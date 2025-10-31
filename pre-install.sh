@@ -27,7 +27,7 @@ echo "127.0.0.1 kubernetes-vm" >> /etc/hosts
 sudo minikube start --memory=16G --cpus=5 --force
 
 # Wait for the Kubernetes API server to become available
-while ! curl --silent --fail --output /dev/null http://localhost:8001/api 
+while ! curl --silent --fail --output /dev/null https://192.168.49.2:8443/api 
 do
     sleep 1 
 done
