@@ -162,17 +162,23 @@ main() {
   kubectl patch service grafana -n vvp -p '{"spec": { "type": "NodePort", "ports": [ { "nodePort": 30003, "port": 80, "protocol": "TCP", "targetPort": 3000, "name": "grafana-np" } ] } }'
   kubectl patch service minio -n vvp -p '{"spec": { "type": "NodePort", "ports": [ { "nodePort": 30004, "port": 9000, "protocol": "TCP", "targetPort": 9000, "name": "minio-np" } ] } }'
 
+  # port-forward setup
+  screen -dmS vvp bash -c 'kubectl --address 0.0.0.0 --namespace vvp port-forward services/vvp-ververica-platform 8080:80'
+  screen -dmS grafana bash -c 'kubectl --address 0.0.0.0 --namespace vvp port-forward services/grafana 8085:80'
+  screen -dmS minio bash -c 'kubectl --address 0.0.0.0 --namespace vvp port-forward services/minio 9000:9000'
 
-  # Create Deployment Target and Session Cluster
-  echo "> Creating Session Cluster..."
+  # Waiting VVP to respond
+  echo "> Waiting VVP to be ready..."
   while ! curl --silent --fail --output /dev/null kubernetes-vm:30002/api/v1/status 
   do
       sleep 1 
   done
 
-  curl -i -X POST kubernetes-vm:30002/api/v1/namespaces/default/deployment-targets -H "Content-Type: application/yaml" --data-binary "@/root/ververica-platform-playground/vvp-resources/deployment_target.yaml"
-  curl -i -X POST kubernetes-vm:30002/api/v1/namespaces/default/sessionclusters -H "Content-Type: application/yaml" --data-binary "@/root/ververica-platform-playground/vvp-resources/sessioncluster.yaml"
-  curl -i -X POST 'kubernetes-vm:30002/namespaces/v1/namespaces/default:setPreviewSessionCluster' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"previewSessionClusterName": "sql-editor"}'
+  # Create Deployment Target and Session Cluster
+  curl -i -X POST localhost:8080/api/v1/namespaces/default/deployment-targets -H "Content-Type: application/yaml" --data-binary "@/root/ververica-platform-playground/vvp-resources/deployment_target.yaml"
+  curl -i -X POST localhost:8080/api/v1/namespaces/default/sessionclusters -H "Content-Type: application/yaml" --data-binary "@/root/ververica-platform-playground/vvp-resources/sessioncluster.yaml"
+  curl -i -X POST 'localhost:8080/namespaces/v1/namespaces/default:setPreviewSessionCluster' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"previewSessionClusterName": "sql-editor"}'
+
 }
 
 main "$@"
