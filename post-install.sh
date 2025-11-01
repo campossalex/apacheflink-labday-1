@@ -5,10 +5,10 @@ python3 ververica-platform-playground/get-pip.py
 pip3 install faker kafka-python
 
 # postgresql install
-dnf install postgresql15.x86_64 postgresql15-server -y
+yum install postgresql postgresql-server -y
 sudo postgresql-setup --initdb
-printf '%s\n' >> "/var/lib/pgsql/data/pg_hba.conf" \
-  'host     all     all     0.0.0.0/0     md5'
+rm -rf /var/lib/pgsql/data/pg_hba.conf
+cp ververica-platform-playground/pgsql/pg_hba.conf /var/lib/pgsql/data/pg_hba.conf
 printf '%s\n' >> "/var/lib/pgsql/data/postgresql.conf" \
   "listen_addresses = '*'"
 systemctl restart postgresql
