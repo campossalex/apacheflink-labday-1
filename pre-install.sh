@@ -20,6 +20,14 @@ sudo yum update -y
 sudo yum install -y docker
 sudo service docker start
 
+# Shell In a Box
+sudo adduser admin
+echo admin:admin1 | chpasswd
+
+yum install shellinabox -y
+echo "OPTS="--no-beep --disable-ssl -s /:LOGIN"" >> /etc/sysconfig/shellinaboxd
+systemctl start shellinaboxd
+
 # add a dns record to /etc/hosts
 echo "127.0.0.1 kubernetes-vm" >> /etc/hosts
 
