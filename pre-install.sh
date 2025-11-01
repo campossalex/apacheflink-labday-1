@@ -25,9 +25,12 @@ sudo adduser admin
 echo admin:admin1 | chpasswd
 
 sudo amazon-linux-extras install epel -y
-yum install shellinabox -y
+sudp yum install shellinabox -y
 echo "OPTS="--no-beep --disable-ssl -s /:LOGIN"" >> /etc/sysconfig/shellinaboxd
 systemctl start shellinaboxd
+
+# Copy Salesgen python script to /home/admin folder
+sudo cp -Rv ververica-platform-playground/salesgen /home/admin/
 
 # add a dns record to /etc/hosts
 echo "127.0.0.1 kubernetes-vm" >> /etc/hosts
