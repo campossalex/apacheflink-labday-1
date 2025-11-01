@@ -7,7 +7,7 @@ pip3 install faker kafka-python
 # postgresql 14 install
 sudo cp ververica-platform-playground/pgsql/pgdg.repo /etc/yum.repos.d/pgdg.repo
 sudo yum makecache
-sudo yum install postgresql14 postgresql14-server
+sudo yum install postgresql14 postgresql14-server -y
 sudo postgresql-14-setup initdb
 printf '%s\n' >> "/etc/postgresql/14/main/pg_hba.conf" \
   'host     all     all     0.0.0.0/0     md5'
