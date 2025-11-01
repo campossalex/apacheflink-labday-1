@@ -13,7 +13,7 @@ printf '%s\n' >> "/var/lib/pgsql/data/postgresql.conf" \
   "listen_addresses = '*'"
 systemctl restart postgresql
 
-sudo cp ververica-platform-playground/pg_ddl.sql /pg_ddl.sql
+sudo cp ververica-platform-playground/pgsql/pg_ddl.sql /pg_ddl.sql
 sudo chown postgres:postgres /pg_ddl.sql
 sudo -i -u postgres psql -a -w -f /pg_ddl.sql
 
