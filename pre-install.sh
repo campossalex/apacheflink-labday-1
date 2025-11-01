@@ -25,7 +25,7 @@ sudo adduser admin
 echo admin:admin1 | chpasswd
 
 sudo amazon-linux-extras install epel -y
-sudp yum install shellinabox -y
+sudo yum install shellinabox -y
 echo "OPTS="--no-beep --disable-ssl -s /:LOGIN"" >> /etc/sysconfig/shellinaboxd
 systemctl start shellinaboxd
 
