@@ -24,6 +24,7 @@ sudo service docker start
 sudo adduser admin
 echo admin:admin1 | chpasswd
 
+sudo amazon-linux-extras install epel -y
 yum install shellinabox -y
 echo "OPTS="--no-beep --disable-ssl -s /:LOGIN"" >> /etc/sysconfig/shellinaboxd
 systemctl start shellinaboxd
