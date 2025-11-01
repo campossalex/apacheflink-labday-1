@@ -4,14 +4,16 @@
 python3 ververica-platform-playground/get-pip.py
 pip3 install faker kafka-python
 
-# postgresql install
-yum install postgresql postgresql-server -y
-sudo postgresql-setup initdb
-rm -rf /var/lib/pgsql/data/pg_hba.conf
-cp ververica-platform-playground/pgsql/pg_hba.conf /var/lib/pgsql/data/pg_hba.conf
-printf '%s\n' >> "/var/lib/pgsql/data/postgresql.conf" \
+# postgresql 14 install
+sudo cp ververica-platform-playground/pgsql/pgdg.repo /etc/yum.repos.d/pgdg.repo
+sudo yum makecache
+sudo yum install postgresql14 postgresql14-server
+sudo postgresql-14-setup initdb
+printf '%s\n' >> "/etc/postgresql/14/main/pg_hba.conf" \
+  'host     all     all     0.0.0.0/0     md5'
+printf '%s\n' >> "/var/lib/pgsql/14/data/postgresql.conf" \
   "listen_addresses = '*'"
-systemctl restart postgresql
+systemctl restart postgresql-14
 
 sudo cp ververica-platform-playground/pgsql/pg_ddl.sql /pg_ddl.sql
 sudo chown postgres:postgres /pg_ddl.sql
