@@ -6,7 +6,7 @@ pip3 install faker kafka-python
 
 # postgresql install
 yum install postgresql postgresql-server -y
-sudo postgresql-setup --initdb
+sudo postgresql-setup initdb
 rm -rf /var/lib/pgsql/data/pg_hba.conf
 cp ververica-platform-playground/pgsql/pg_hba.conf /var/lib/pgsql/data/pg_hba.conf
 printf '%s\n' >> "/var/lib/pgsql/data/postgresql.conf" \
