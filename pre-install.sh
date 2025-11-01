@@ -32,7 +32,7 @@ systemctl start shellinaboxd
 echo "127.0.0.1 kubernetes-vm" >> /etc/hosts
 
 # start minikube
-sudo minikube start --memory=16G --cpus=5 --force
+sudo minikube start --memory=8G --cpus=5 --force
 
 # Wait for the Kubernetes API server to become available
 kubectl --namespace kube-system wait --timeout=5m --for=condition=ready pods --all
