@@ -43,5 +43,4 @@ chmod +x mc
 ./mc od if=ververica-platform-playground/data/products.csv of=vvpminio/data/product/products.csv
 
 ## Start Web Aopp
-PUBLIC_IP=$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4)
-screen -dmS web_app bash -c 'python3 ververica-platform-playground/web/app.py $PUBLIC_IP'
+screen -dmS web_app bash -c 'PUBLIC_IP=$(curl --silent http://169.254.169.254/latest/meta-data/public-ipv4); python3 ververica-platform-playground/web/app.py $PUBLIC_IP'
