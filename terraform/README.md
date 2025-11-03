@@ -36,5 +36,17 @@ terraform apply -auto-approve
 ```console
 terraform destroy
 ```
-
 Type `yes` to confirm the operation.
+
+# Troubleshooting  
+
+If you have issues, ssh to the ec2 instance using the key you configured in the terraform variable and the public ip address:  
+```console
+ssh -i YOUR_KEY.pem ec2-user@INSTANCE_PUBLIC_ID
+```
+
+then check the environment setup log:  
+```console
+sudo tail -f /var/log/labday_setup.log
+```
+
