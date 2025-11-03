@@ -4,7 +4,7 @@
 
 - Terraform installed   
 - AWS CLI installed  
-- Configure aws cli with your key credentials
+- Configure aws cli with your aws key credentials  
 
 # Steps  
 
