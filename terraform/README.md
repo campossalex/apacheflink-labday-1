@@ -12,27 +12,27 @@
 ```console
 git clone https://github.com/campossalex/apacheflink-labday-1 apacheflink-labday-1/
 ``` 
-3. Change to the repo directory  
+2. Change to the repo directory  
 ```console
 cd apacheflink-labday-1/terraform
 ```
-5. Change to following configuration for your setup.   
+3. Change to following configuration for your setup.   
 ```console
 nano terraform.tfvars
 ```
 - `instance_count`, how many instances you need, default is 1
 - `key_name`, the key pair to use to launch the ec2 instances  
-5. Then initiate terraform  
+4. Then initiate terraform  
 ```console
 terraform init
 ```
-6. Then apply terraform  
+5. Then apply terraform  
 ```console
 terraform apply -auto-approve
 ```
-7. After the ec2 instances are launched, the public ip address are printed. Copy and paste the address in your web browser to see the welcome page for each instance with the links to access the lab components  
+6. After the ec2 instances are launched, the public ip address are printed. Copy and paste the address in your web browser to see the welcome page for each instance with the links to access the lab components  
 
-8. Run the following command to tear down the instances   
+7. Run the following command to tear down the instances   
 ```console
 terraform destroy
 ```
