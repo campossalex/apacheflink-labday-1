@@ -22,13 +22,9 @@ terraform init
 ```console
 terraform apply -auto-approve
 ```
-7. Then apply terraform  
-```console
-terraform apply -auto-approve
-```
-8. After the ec2 instances are launched, the public ip address are printed. Copy and paste the address in your web browser to see the welcome page for each instance with the links to access the lab components  
+7. After the ec2 instances are launched, the public ip address are printed. Copy and paste the address in your web browser to see the welcome page for each instance with the links to access the lab components  
 
-9. Run the following command to tear down the instances   
+8. Run the following command to tear down the instances   
 ```console
 terraform destroy
 ```
