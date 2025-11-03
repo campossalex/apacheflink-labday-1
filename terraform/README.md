@@ -6,7 +6,7 @@ git clone https://github.com/campossalex/apacheflink-labday-1 apacheflink-labday
 ``` 
 3. Change to the repo directory  
 ```console
-cd apacheflink-labday-1
+cd apacheflink-labday-1/terraform
 ```
 5. Change to following configuration for your setup.   
 ```console
