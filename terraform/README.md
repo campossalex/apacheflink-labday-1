@@ -4,7 +4,8 @@
 
 - Terraform installed   
 - AWS CLI installed  
-- Configure aws cli with your aws key credentials  
+- Configure aws cli with your aws key credentials
+- Key pair generated in the region you wil deploy the environment  
 
 # Steps  
 
