@@ -1,5 +1,13 @@
 ## Instructions to spin up this environment
 
+# Prerequisites
+
+- Terraform installed   
+- AWS CLI installed  
+- Configure aws cli with your key credentials
+
+# Steps  
+
 1. Close this repo  
 ```console
 git clone https://github.com/campossalex/apacheflink-labday-1 apacheflink-labday-1/
