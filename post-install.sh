@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # install pip and python libs
-python3 ververica-platform-playground/get-pip.py
+python3 ververica-platform-playground/setup/get-pip.py
 pip3 install faker kafka-python flask
 
 # postgresql 14 install
