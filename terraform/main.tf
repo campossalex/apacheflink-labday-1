@@ -80,14 +80,17 @@ resource "aws_instance" "labday" {
     cd /root
     git clone ${var.git_repo} ververica-platform-playground
 
-    # Run the script as root
+    # Run pre-install script
     sudo ./ververica-platform-playground/pre-install.sh > /var/log/labday_setup.log 2>&1
 
-    # Run the script as root   
+    # Run setup script
     sudo ./ververica-platform-playground/setup.sh > /var/log/labday_setup.log 2>&1
 
-    # Run the script as root   
+    # Run post-install script   
     sudo ./ververica-platform-playground/post-install.sh > /var/log/labday_setup.log 2>&1
+
+    # Run response-install script   
+    sudo ./ververica-platform-playground/response-install.sh > /var/log/labday_setup.log 2>&1
 
   EOF
 
