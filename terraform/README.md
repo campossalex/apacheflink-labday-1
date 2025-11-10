@@ -44,6 +44,8 @@ Type `yes` to confirm the operation.
 Once the terraform script spin up the ec2 instances, the public dns will be printed.  
 You can copy it and paste it in your web browser to access the front page to access the demo components deployed.  
 
+⚠️ Environment creation takes about 5 to 10 minutes. Give enough time to finish the process and see the front page.    
+
 # Troubleshooting  
 
 If you have issues, ssh to the ec2 instance using the key you configured in the terraform variable and the public ip address:  
