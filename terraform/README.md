@@ -21,7 +21,7 @@ cd apacheflink-labday-1/terraform
 ```console
 nano terraform.tfvars
 ```
-- `instance_count`, how many instances you need, default is 1
+- `instance_count`, how many instances you need, default is 1. More than 1 is a usually used for public-facing workshop.
 - `key_name`, the key pair to use to launch the ec2 instances  
 4. Then initiate terraform  
 ```console
@@ -38,6 +38,11 @@ terraform apply -auto-approve
 terraform destroy
 ```
 Type `yes` to confirm the operation.
+
+# Access  
+
+Once the terraform script spin up the ec2 instances, the public dns will be printed.  
+You can copy it and paste it in your web browser to access the front page to access the demo components deployed.  
 
 # Troubleshooting  
 
