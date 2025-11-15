@@ -48,20 +48,20 @@ install_minio() {
     --namespace "vvp" \
     upgrade --install "minio" "minio" \
     --repo https://charts.helm.sh/stable \
-    --values /root/ververica-platform-playground/values-minio.yaml
+    --values /root/ververica-platform-playground/setup/helm/values-minio.yaml
 }
 
 install_grafana() {
   helm_install grafana grafana "$VVP_NAMESPACE" \
     --repo https://grafana.github.io/helm-charts \
-    --values /root/ververica-platform-playground/values-grafana.yaml
+    --values /root/ververica-platform-playground/setup/helm/values-grafana.yaml
 }
 
 helm_install_vvp() {
   if [ -n "$VVP_CHART" ];  then
     helm_install vvp "$VVP_CHART" "$VVP_NAMESPACE" \
       --version "$VVP_CHART_VERSION" \
-      --values /root/ververica-platform-playground/values-vvp.yaml \
+      --values /root/ververica-platform-playground/setup/helm/values-vvp.yaml \
       --set rbac.additionalNamespaces="{$JOBS_NAMESPACE}" \
       --set vvp.blobStorage.s3.endpoint="http://minio.$VVP_NAMESPACE.svc:9000" \
       "$@"
@@ -69,7 +69,7 @@ helm_install_vvp() {
     helm_install vvp ververica-platform "$VVP_NAMESPACE" \
       --repo https://charts.ververica.com \
       --version "$VVP_CHART_VERSION" \
-      --values /root/ververica-platform-playground/values-vvp.yaml \
+      --values /root/ververica-platform-playground/setup/helm/values-vvp.yaml \
       --set rbac.additionalNamespaces="{$JOBS_NAMESPACE}" \
       --set vvp.blobStorage.s3.endpoint="http://minio.$VVP_NAMESPACE.svc:9000" \
       "$@"

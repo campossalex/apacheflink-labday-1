@@ -60,7 +60,7 @@ CREATE TABLE purchase_stream (
   WATERMARK FOR transaction_time AS transaction_time - INTERVAL '1' SECOND
 ) WITH (
     'connector'='kafka',
-    'properties.bootstrap.servers'='kubernetes-vm:9092',
+    'properties.bootstrap.servers'='host.minikube.internal:9092',
     'format'='json',
     'topic' = 'store.purchases',
     'properties.group.id' = 'flink-jobs',
@@ -241,7 +241,7 @@ Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and p
 ```sql,line-numbers,wrap
 CREATE CATALOG dwh WITH (
   'type' = 'jdbc',
-  'base-url' = 'jdbc:postgresql://kubernetes-vm:5432',
+  'base-url' = 'jdbc:postgresql://host.minikube.internal:5432',
   'default-database' = 'sales_report',
   'username' = 'root',
   'password' = 'admin1'
@@ -319,7 +319,7 @@ Click on the *Overview* tab to observe the Job Graph, including the data sources
 Let's run a simple SELECT to check data is landing in the Postgres table. Run the following command in the [button label="CLI tab"](tab-1) to start a Postgres database connection. Introduce the password 'admin1':
 
 ```bash,line-numbers,wrap
-psql -h kubernetes-vm -p 5432 -d sales_report -U root -W
+psql -p 5432 -d sales_report -U root -W
 ```
 
 Once the Postgres client connection is ready, copy and paste the following query:
@@ -352,7 +352,7 @@ Once in the new Data source form, enter 'sales_dwh' in the Name field:
 
 In Connection section, add the following values:
 
-- **Host URL**: kubernetes-vm:5432
+- **Host URL**: host.minikube.internal:5432
 - **Database name**: sales_report
 
 In Authtentication, add the following values:

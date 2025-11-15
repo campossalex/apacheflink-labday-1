@@ -1,4 +1,0 @@
-vvp:
-  ui:
-    linkTemplates:
-      metrics: http://localhost:3000/d/6x9EvVBnz/flink-monitoring-prometheus?var-deploymentId=<%= deploymentId %>
