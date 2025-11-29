@@ -52,8 +52,37 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+# EC2 registration form instances
+resource "aws_instance" "registration_form" {
+  ami           = "ami-004e960cde33f9146"
+  instance_type = "t2.micro"
+  key_name      = var.key_name
+  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
 
-# EC2 instances
+  root_block_device {
+    volume_size = 20          # GB
+    volume_type = "gp3"       # General-purpose SSD (recommended)
+    delete_on_termination = true
+  }
+
+  # Run as root using user_data
+  user_data = <<-EOF
+    #!/bin/bash
+    set -euxo pipefail
+
+    # Clone your repo
+    cd /root
+    git clone ${var.git_repo} ververica-platform-playground
+
+  EOF
+
+  tags = {
+    Name = "labday-registrationform"
+  }
+}
+
+
+# EC2 lab instances
 resource "aws_instance" "labday" {
   count         = var.instance_count
   ami           = var.instance_ami
@@ -75,6 +104,9 @@ resource "aws_instance" "labday" {
     # Install git
     yum update -y
     yum install -y git
+
+    echo "${aws_instance.registration_form.private_ip}" > /root/regform-ip.txt
+
 
     # Clone your repo
     cd /root
