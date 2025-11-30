@@ -4,9 +4,9 @@ resource "aws_security_group" "labday_sgn" {
 
   ingress {
     description     = "Allow all traffic within the same security group"
-    protocol = "-1"     # ALL
-    from_port = 0
-    to_port   = 0
+    protocol    = "-1"     # ALL
+    from_port   = 0
+    to_port     = 0
     self        = true
   }
 
