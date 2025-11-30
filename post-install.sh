@@ -43,8 +43,9 @@ chmod +x mc
 ./mc od if=ververica-platform-playground/data/products.csv of=vvpminio/data/product/products.csv
 
 ## Register Lab Env
+MYSQL_HOST="$(cat regform-ip.txt)"
 PUBLIC_DNS=$(curl --silent http://169.254.169.254/latest/meta-data/public-hostname)
-python3 ververica-platform-playground/registration-app/register_lab_environment.py $PUBLIC_DNS
+python3 ververica-platform-playground/registration-app/register_lab_environment.py $PUBLIC_DNS $MYSQL_HOST
 
 ## Start Web App
 screen -dmS web_app bash -c 'PUBLIC_DNS=$(curl --silent http://169.254.169.254/latest/meta-data/public-hostname); python3 ververica-platform-playground/web/app.py $PUBLIC_DNS'
