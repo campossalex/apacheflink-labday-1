@@ -47,11 +47,24 @@ def register():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO registrations (name, surname, email)
-                    VALUES (%s, %s, %s)
+                    UPDATE registrations 
+                    SET name = %s, surname = %s, email = %s
+                    WHERE email IS NULL
+                    LIMIT 1;
                     """,
                     (name, surname, email),
                 )
+
+                cur.execute("""
+                    SELECT lab_url
+                    FROM registrations
+                    WHERE email = %s
+                    LIMIT 1;
+                    """, (email,)
+                )
+                row = cur.fetchone()
+                lab_url = "http://" + row["lab_url"]
+
             conn.close()
         except Exception as exc:
             app.logger.error("Error inserting registration: %s", exc)
@@ -59,10 +72,9 @@ def register():
             return redirect(url_for("register"))
 
         # Redirect to welcome page with name & username
-        return redirect(url_for("welcome", name=name, surname=surname))
+        return render_template("welcome.html", name=name, lab_url=lab_url)
 
     return render_template("register.html")
-
 
 @app.route("/registrations")
 def list_registrations():
