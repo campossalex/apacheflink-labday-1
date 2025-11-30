@@ -90,6 +90,7 @@ resource "aws_instance" "registration_form" {
 
   tags = {
     Name = "labday-registrationform"
+    owner = var.owner
   }
 }
 
@@ -139,5 +140,6 @@ resource "aws_instance" "labday" {
 
   tags = {
     Name = "labday-instance-${count.index}"
+    owner = var.owner
   }
 }
