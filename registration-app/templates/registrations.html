@@ -27,9 +27,9 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>Name</th>
-          <th>Username</th>
+          <th>Name Surname</th>
           <th>Email</th>
+          <th>Lab Url</th>
           <th>Created at</th>
         </tr>
       </thead>
@@ -37,9 +37,9 @@
         {% for r in registrations %}
           <tr>
             <td>{{ r.id }}</td>
-            <td>{{ r.name }}</td>
-            <td>{{ r.username }}</td>
+            <td>{{ r.name }} {{ r.surname }}</td>
             <td>{{ r.email }}</td>
+            <td><a href="http://{{ r.lab_url }}">http://{{ r.lab_url }}</a></td>
             <td>{{ r.created_at }}</td>
           </tr>
         {% endfor %}
