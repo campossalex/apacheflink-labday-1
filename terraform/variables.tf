@@ -26,3 +26,8 @@ variable "key_name" {
 variable "git_repo" {   
   default = "https://github.com/campossalex/apacheflink-labday-1.git"
 }
+
+# Owner tag
+variable "owner" {
+}
+
