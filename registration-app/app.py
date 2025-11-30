@@ -30,6 +30,20 @@ def get_connection():
         autocommit=True,
     )
 
+def get_one_null_email_record():
+    conn = get_connection()
+    try:
+        with conn.cursor() as cur:
+            cur.execute("""
+                SELECT id 
+                FROM registrations
+                WHERE email IS NULL
+                ORDER BY id ASC
+                LIMIT 1;
+            """)
+            return cur.fetchone()
+    finally:
+        conn.close()
 
 @app.route("/", methods=["GET", "POST"])
 def register():
@@ -42,6 +56,11 @@ def register():
             flash("Please fill in all fields.", "error")
             return redirect(url_for("register"))
 
+        row = get_one_null_email_record()
+
+        if not row:
+            flash("No environment available", "error")
+                return redirect(url_for("register"))   # or wherever your form lives
         try:
             conn = get_connection()
             with conn.cursor() as cur:
