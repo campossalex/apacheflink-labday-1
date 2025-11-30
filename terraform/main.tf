@@ -1,7 +1,14 @@
 # Security group to allow SSH access
-resource "aws_security_group" "allow_ssh" {
-  name        = "allow_ssh"
-  description = "Allow SSH from anywhere"
+resource "aws_security_group" "labday_sgn" {
+  name        = "labday_sgn"
+
+  ingress {
+    description     = "Allow all traffic within the same security group"
+    protocol = "-1"     # ALL
+    from_port = 0
+    to_port   = 0
+    self        = true
+  }
 
   ingress {
     from_port   = 22
@@ -52,12 +59,13 @@ resource "aws_security_group" "allow_ssh" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
 # EC2 registration form instances
 resource "aws_instance" "registration_form" {
   ami           = "ami-004e960cde33f9146"
   instance_type = "t2.micro"
   key_name      = var.key_name
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids = [aws_security_group.ladday_sgn.id]
 
   root_block_device {
     volume_size = 20          # GB
@@ -84,14 +92,13 @@ resource "aws_instance" "registration_form" {
   }
 }
 
-
 # EC2 lab instances
 resource "aws_instance" "labday" {
   count         = var.instance_count
   ami           = var.instance_ami
   instance_type = var.instance_type
   key_name      = var.key_name
-  vpc_security_group_ids = [aws_security_group.allow_ssh.id]
+  vpc_security_group_ids = [aws_security_group.ladday_sgn.id]
 
   root_block_device {
     volume_size = 40          # GB
@@ -132,4 +139,3 @@ resource "aws_instance" "labday" {
     Name = "labday-instance-${count.index}"
   }
 }
-
