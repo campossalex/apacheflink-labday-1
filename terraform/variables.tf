@@ -19,7 +19,6 @@ variable "instance_type" {
   
 # Your EC2 key pair name (must already exist in AWS)
 variable "key_name" {
-  default = "acampos-frankfurt-key"
 }
   
 # Your Git repo and script name
