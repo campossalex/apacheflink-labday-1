@@ -68,11 +68,14 @@ resource "aws_instance" "registration_form" {
   # Run as root using user_data
   user_data = <<-EOF
     #!/bin/bash
-    set -euxo pipefail
+    set -xe
 
     # Clone your repo
     cd /root
     git clone ${var.git_repo} ververica-platform-playground
+
+    cd /root/ververica-platform-playground/registration-app
+    sudo ./setup.sh > /var/log/regform_setup.log 2>&1
 
   EOF
 
@@ -106,7 +109,6 @@ resource "aws_instance" "labday" {
     yum install -y git
 
     echo "${aws_instance.registration_form.private_ip}" > /root/regform-ip.txt
-
 
     # Clone your repo
     cd /root

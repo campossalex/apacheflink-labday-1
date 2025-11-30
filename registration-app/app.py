@@ -35,10 +35,10 @@ def get_connection():
 def register():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
-        username = request.form.get("username", "").strip()
+        surname = request.form.get("surname", "").strip()
         email = request.form.get("email", "").strip()
 
-        if not name or not username or not email:
+        if not name or not surname or not email:
             flash("Please fill in all fields.", "error")
             return redirect(url_for("register"))
 
@@ -47,10 +47,10 @@ def register():
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO registrations (name, username, email)
+                    INSERT INTO registrations (name, surname, email)
                     VALUES (%s, %s, %s)
                     """,
-                    (name, username, email),
+                    (name, surname, email),
                 )
             conn.close()
         except Exception as exc:
@@ -59,7 +59,7 @@ def register():
             return redirect(url_for("register"))
 
         # Redirect to welcome page with name & username
-        return redirect(url_for("welcome", name=name, username=username))
+        return redirect(url_for("welcome", name=name, surname=surname))
 
     return render_template("register.html")
 
