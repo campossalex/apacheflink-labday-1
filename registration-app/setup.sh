@@ -60,7 +60,7 @@ EOF
 mysql -h "${MYSQL_HOST}" -P "${MYSQL_PORT}" -u "${DB_USER}" -p"${DB_PASSWORD}" "${DB_NAME}" <<EOF
 CREATE TABLE IF NOT EXISTS registrations (
   id INT AUTO_INCREMENT PRIMARY KEY,
-  name VARCHAR(100 NULL,
+  name VARCHAR(100) NULL,
   surname VARCHAR(100) NULL,
   email VARCHAR(255) NULL,
   lab_url VARCHAR(255) NULL,
