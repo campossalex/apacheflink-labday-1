@@ -59,8 +59,9 @@ def register():
         row = get_one_null_email_record()
 
         if not row:
-            flash("No environment available", "error")
-                return redirect(url_for("register"))   # or wherever your form lives
+            flash("Sorry, no environments available!", "error")
+            return redirect(url_for("register")) 
+            
         try:
             conn = get_connection()
             with conn.cursor() as cur:
