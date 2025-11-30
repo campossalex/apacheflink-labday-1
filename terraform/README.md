@@ -22,7 +22,8 @@ cd apacheflink-labday-1/terraform
 nano terraform.tfvars
 ```
 - `instance_count`, how many instances you need, default is 1. More than 1 is a usually used for public-facing workshop.
-- `key_name`, the key pair to use to launch the ec2 instances  
+- `key_name`, the key pair to use to launch the ec2 instances
+- `owner`, your name to identify to tag the resources  
 4. Then initiate terraform  
 ```console
 terraform init
