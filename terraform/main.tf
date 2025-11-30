@@ -78,10 +78,11 @@ resource "aws_instance" "registration_form" {
     #!/bin/bash
     set -xe
 
-    # Clone your repo
+    # Clone the repo
     cd /root
     git clone ${var.git_repo} ververica-platform-playground
 
+    # Run the registration form setup
     cd /root/ververica-platform-playground/registration-app
     sudo ./setup.sh > /var/log/regform_setup.log 2>&1
 
@@ -115,9 +116,10 @@ resource "aws_instance" "labday" {
     yum update -y
     yum install -y git
 
+    # Store registration form ip in each lab environment instance
     echo "${aws_instance.registration_form.private_ip}" > /root/regform-ip.txt
 
-    # Clone your repo
+    # Clone the repo
     cd /root
     git clone ${var.git_repo} ververica-platform-playground
 
