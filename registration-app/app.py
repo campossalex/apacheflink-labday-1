@@ -64,6 +64,20 @@ def register():
     return render_template("register.html")
 
 
+@app.route("/registrations")
+def list_registrations():
+    try:
+        conn = get_connection()
+        with conn.cursor() as cur:
+            cur.execute("SELECT id, name, username, email, created_at FROM registrations ORDER BY created_at DESC")
+            rows = cur.fetchall()
+        conn.close()
+    except Exception as exc:
+        app.logger.error("Error fetching registrations: %s", exc)
+        rows = []
+
+    return render_template("registrations.html", registrations=rows)
+
 @app.route("/welcome")
 def welcome():
     name = request.args.get("name", "")
