@@ -2,7 +2,7 @@
 
 # install pip and python libs
 python3 ververica-platform-playground/setup/get-pip.py
-pip3 install faker kafka-python flask
+pip3 install faker kafka-python flask pymysql
 
 # postgresql 14 install
 sudo cp ververica-platform-playground/pgsql/pgdg.repo /etc/yum.repos.d/pgdg.repo
