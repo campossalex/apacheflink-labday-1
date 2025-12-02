@@ -180,6 +180,7 @@ main() {
   curl -i -X POST 'localhost:8080/namespaces/v1/namespaces/default:setPreviewSessionCluster' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"previewSessionClusterName": "sql-editor"}'
 
 
+
 curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
   -H "Content-Type: application/json" \
   -d '{"script":"CREATE TABLE purchase_stream (
@@ -194,15 +195,15 @@ curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
   add_supplements BOOLEAN,
   supplement_price FLOAT,
   total_purchase FLOAT,
-  WATERMARK FOR transaction_time AS transaction_time - INTERVAL '1' SECOND
+  WATERMARK FOR transaction_time AS transaction_time - INTERVAL '\''1'\'' SECOND
 ) WITH (
-    'connector'='kafka',
-    'properties.bootstrap.servers'='host.minikube.internal:9092',
-    'format'='json',
-    'topic' = 'store.purchases',
-    'properties.group.id' = 'flink-jobs',
-    'scan.startup.mode' = 'earliest-offset',
-    'properties.auto.offset.reset' = 'earliest'
+    '\''connector'\''='\''kafka'\'',
+    '\''properties.bootstrap.servers'\''='\''host.minikube.internal:9092'\'',
+    '\''format'\''='\''json'\'',
+    '\''topic'\'' = '\''store.purchases'\'',
+    '\''properties.group.id'\'' = '\''flink-jobs'\'',
+    '\''scan.startup.mode'\'' = '\''earliest-offset'\'',
+    '\''properties.auto.offset.reset'\'' = '\''earliest'\''
 );
 
 CREATE TABLE master_product (
@@ -219,9 +220,9 @@ CREATE TABLE master_product (
   contains_caffeine string,
   PRIMARY KEY (product_id) NOT ENFORCED
 ) WITH (
-  'connector' = 'filesystem',
-  'path' = 's3://data/product',
-  'format' = 'csv'
+  '\''connector'\'' = '\''filesystem'\'',
+  '\''path'\'' = '\''s3://data/product'\'',
+  '\''format'\'' = '\''csv'\''
 );","displayName":"Table DDL","name":"namespaces/default/sqlscripts/table-ddl"}'
 
 
@@ -244,25 +245,25 @@ ON purchase_stream.product_id = master_product.product_id
 SELECT
    item,
    SUM(total_purchase) AS sum_total_purchase,
-   TUMBLE_START(transaction_time, INTERVAL '10' SECONDS) AS purchase_window
+   TUMBLE_START(transaction_time, INTERVAL '\''10'\'' SECONDS) AS purchase_window
 FROM purchase_stream
 JOIN master_product
 ON purchase_stream.product_id = master_product.product_id
 GROUP BY
-  TUMBLE(transaction_time, INTERVAL '10' SECONDS),
+  TUMBLE(transaction_time, INTERVAL '\''10'\'' SECONDS),
   item
 
 ## Query 3
 SELECT
    item,
    SUM(total_purchase) AS sum_total_purchase,
-   HOP_START(transaction_time, INTERVAL '10' SECONDS, INTERVAL '60' SECONDS) AS purchase_window
+   HOP_START(transaction_time, INTERVAL '\''10'\'' SECONDS, INTERVAL '\''60'\'' SECONDS) AS purchase_window
 FROM purchase_stream
 JOIN master_product
 ON purchase_stream.product_id = master_product.product_id
 WHERE category = '\''Superfoods Smoothies'\''
 GROUP BY
-  HOP(transaction_time, INTERVAL '10' SECONDS, INTERVAL '60' SECONDS),
+  HOP(transaction_time, INTERVAL '\''10'\'' SECONDS, INTERVAL '\''60'\'' SECONDS),
   item
 
 ## Query 4
@@ -277,12 +278,12 @@ SELECT
    SUM(supplement_price) AS sum_supplement_price,
    SUM(total_purchase) AS sum_total_purchase,
    AVG(total_purchase) AS avg_total_purchase,
-   TUMBLE_START(transaction_time, INTERVAL '30' SECONDS) AS purchase_window
+   TUMBLE_START(transaction_time, INTERVAL '\''30'\'' SECONDS) AS purchase_window
 FROM purchase_stream
 JOIN master_product
 ON purchase_stream.product_id = master_product.product_id
 GROUP BY
-  TUMBLE(transaction_time, INTERVAL '30' SECONDS),
+  TUMBLE(transaction_time, INTERVAL '\''30'\'' SECONDS),
   item,
 	category,
 	state
@@ -293,11 +294,11 @@ GROUP BY
 curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
   -H "Content-Type: application/json" \
   -d '{"script":"CREATE CATALOG dwh WITH (
-  'type' = 'jdbc',
-  'base-url' = 'jdbc:postgresql://host.minikube.internal:5432',
-  'default-database' = 'sales_report',
-  'username' = 'root',
-  'password' = 'admin1'
+  '\''type'\'' = '\''jdbc'\'',
+  '\''base-url'\'' = '\''jdbc:postgresql://host.minikube.internal:5432'\'',
+  '\''default-database'\'' = '\''sales_report'\'',
+  '\''username'\'' = '\''root'\'',
+  '\''password'\'' = '\''admin1'\''
 )","displayName":"Create Catalog","name":"namespaces/default/sqlscripts/create-catalog"}'
 
 
@@ -308,7 +309,7 @@ SELECT
    item,
    category,
    state,
-   TUMBLE_START(transaction_time, INTERVAL '30' SECONDS),
+   TUMBLE_START(transaction_time, INTERVAL '\''30'\'' SECONDS),
    COUNT(quantity) ,
    SUM(quantity) AS sum_quantity,
    SUM(purchase_stream.price),
@@ -320,11 +321,8 @@ FROM purchase_stream
 JOIN master_product
 ON purchase_stream.product_id = master_product.product_id
 GROUP BY
-  TUMBLE(transaction_time, INTERVAL '30' SECONDS),
-  item,
-	category,
-	state","displayName":"Create Job","name":"namespaces/default/sqlscripts/create-job"}'
-  
-}
+  TUMBLE(transaction_time, INTERVAL '\''30'\'' SECONDS),
+  item, category, state",
+"displayName":"Create Job","name":"namespaces/default/sqlscripts/create-job"}'
 
 main "$@"
