@@ -179,6 +179,152 @@ main() {
   curl -i -X POST localhost:8080/api/v1/namespaces/default/sessionclusters -H "Content-Type: application/yaml" --data-binary "@/root/ververica-platform-playground/vvp-resources/sessioncluster.yaml"
   curl -i -X POST 'localhost:8080/namespaces/v1/namespaces/default:setPreviewSessionCluster' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"previewSessionClusterName": "sql-editor"}'
 
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"CREATE TABLE purchase_stream (
+  transaction_time TIMESTAMP(3),
+  transaction_id STRING,
+  product_id STRING,
+  price FLOAT,
+  quantity INT,
+  state STRING,
+  is_member BOOLEAN,
+  member_discount FLOAT,
+  add_supplements BOOLEAN,
+  supplement_price FLOAT,
+  total_purchase FLOAT,
+  WATERMARK FOR transaction_time AS transaction_time - INTERVAL '1' SECOND
+) WITH (
+    'connector'='kafka',
+    'properties.bootstrap.servers'='host.minikube.internal:9092',
+    'format'='json',
+    'topic' = 'store.purchases',
+    'properties.group.id' = 'flink-jobs',
+    'scan.startup.mode' = 'earliest-offset',
+    'properties.auto.offset.reset' = 'earliest'
+);
+
+CREATE TABLE master_product (
+  product_id string,
+  category string,
+  item string,
+  size string,
+  cogs string,
+  price string,
+  inventory_level string,
+  contains_fruit string,
+  contains_veggies string,
+  contains_nuts string,
+  contains_caffeine string,
+  PRIMARY KEY (product_id) NOT ENFORCED
+) WITH (
+  'connector' = 'filesystem',
+  'path' = 's3://data/product',
+  'format' = 'csv'
+);","displayName":"Table DDL","name":"namespaces/default/sqlscripts/table-ddl"}'
+
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"
+## Query 1
+
+SELECT
+   transaction_time,
+   item,
+   category,
+   quantity,
+   total_purchase
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+
+## Query 2
+SELECT
+   item,
+   SUM(total_purchase) AS sum_total_purchase,
+   TUMBLE_START(transaction_time, INTERVAL '10' SECONDS) AS purchase_window
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+GROUP BY
+  TUMBLE(transaction_time, INTERVAL '10' SECONDS),
+  item
+
+## Query 3
+SELECT
+   item,
+   SUM(total_purchase) AS sum_total_purchase,
+   HOP_START(transaction_time, INTERVAL '10' SECONDS, INTERVAL '60' SECONDS) AS purchase_window
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+WHERE category = '\''Superfoods Smoothies'\''
+GROUP BY
+  HOP(transaction_time, INTERVAL '10' SECONDS, INTERVAL '60' SECONDS),
+  item
+
+## Query 4
+SELECT
+   item,
+   category,
+   state,
+   COUNT(*) AS count_transactions,
+   SUM(quantity) AS sum_quantity,
+   SUM(purchase_stream.price) AS sum_price,
+   SUM(member_discount) AS sum_member_discount,
+   SUM(supplement_price) AS sum_supplement_price,
+   SUM(total_purchase) AS sum_total_purchase,
+   AVG(total_purchase) AS avg_total_purchase,
+   TUMBLE_START(transaction_time, INTERVAL '30' SECONDS) AS purchase_window
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+GROUP BY
+  TUMBLE(transaction_time, INTERVAL '30' SECONDS),
+  item,
+	category,
+	state
+
+","displayName":"Test Queries","name":"namespaces/default/sqlscripts/test-queries"}'
+
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"CREATE CATALOG dwh WITH (
+  'type' = 'jdbc',
+  'base-url' = 'jdbc:postgresql://host.minikube.internal:5432',
+  'default-database' = 'sales_report',
+  'username' = 'root',
+  'password' = 'admin1'
+)","displayName":"Create Catalog","name":"namespaces/default/sqlscripts/create-catalog"}'
+
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"INSERT INTO dwh.sales_report.purchase_report
+SELECT
+   item,
+   category,
+   state,
+   TUMBLE_START(transaction_time, INTERVAL '30' SECONDS),
+   COUNT(quantity) ,
+   SUM(quantity) AS sum_quantity,
+   SUM(purchase_stream.price),
+   SUM(member_discount),
+   SUM(supplement_price),
+   SUM(total_purchase),
+   AVG(total_purchase)
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+GROUP BY
+  TUMBLE(transaction_time, INTERVAL '30' SECONDS),
+  item,
+	category,
+	state","displayName":"Create Job","name":"namespaces/default/sqlscripts/create-job"}'
+  
 }
 
 main "$@"
