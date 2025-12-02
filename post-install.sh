@@ -42,6 +42,11 @@ chmod +x mc
 ./mc mb vvpminio/data/product
 ./mc od if=ververica-platform-playground/data/products.csv of=vvpminio/data/product/products.csv
 
+cp mc /home/admin/mc
+chmod +x /home/admin/mc
+cp -Rv .mc /home/admin/.
+chown -R admin:admin /home/admin/.mc
+
 ## Register Lab Env
 MYSQL_HOST="$(cat regform-ip.txt)"
 PUBLIC_DNS=$(curl --silent http://169.254.169.254/latest/meta-data/public-hostname)
