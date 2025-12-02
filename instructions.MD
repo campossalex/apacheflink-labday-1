@@ -21,17 +21,8 @@ Lab 1: Connecting with Data Sources
 ===
 In this first lab, you will learn how to create Dynamic Table to consume data from a Kafka topic and from a CSV file stored in Minio (s3).
 
-### Step 1: Generate some data with the Python script:
-First, let's generate some streaming data. A data generator Python script will generate some business real-time event and publish to the `store.purchases` Kafka topic. Run the following command in the [button label="Salesgen tab"](tab-0).
-```bash,line-numbers,wrap
-python3 ververica-platform-playground/salesgen/purchases.py
-```
-As you can see, the event data is in the JSON format, self-explained schema.
-> [!NOTE]
-> You can stop the data generator as you whish by running Ctrl+C key combination. To resume the datagen script running the same command again.
-
-### Step 2: Check the data in the Kafka topic:
-Go to [button label="Redpanda tab"](tab-3) to see the actual data arriving in the Kafka topic.
+### Step 1: Check the data in the Kafka topic:
+Go to Redpanda tab to see the actual data arriving in the Kafka topic.
 
 Navigate to the `Topics` option in the left-hand side menu, and then link on the topic `store.purchases` . This is where the purchases events are arriving in Kafka.  Choose one of the messages, and click on the arrow to expand the event details. You will be able to see the actual JSON data.
 
