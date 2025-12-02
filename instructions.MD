@@ -30,10 +30,10 @@ Navigate to the `Topics` option in the left-hand side menu, and then link on the
 
 This confirms purchase events are generated and published to the Kafka topic.
 
-### Step 3: Create a Flink Table to consume purchase events:
+### Step 2: Create a Flink Table to consume purchase events:
 Now it's time to create our first Dynamic Table. We are going to call this table `purchase_stream`to represent the purchases events generated in real-time.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor:
 
 ```sql,line-numbers,wrap
 CREATE TABLE purchase_stream (
@@ -62,7 +62,7 @@ CREATE TABLE purchase_stream (
 
 In the Editor toolbar, click `Run` to execute the SQL statement.  You will also be able to see the new created table on the Catalog (left side of the SQL Editor).
 
-### Step 4: Run a SELECT statement to print purchase events from the Kafka topic:
+### Step 3: Run a SELECT statement to print purchase events from the Kafka topic:
 
 A good way to confirm the table creation works well, is running a SELECT query and see the actual data.  Run the follow statement in the SQL Editor. Replace any previous query:
 
@@ -73,11 +73,11 @@ You will be able to see the purchase event, but now in a tabular format. Great! 
 
 To stop the SELECT query, click on the pause `||` button located above the result grid.
 
-### Step 5: Create a Flink Table to consume the file:
+### Step 4: Create a Flink Table to consume the file:
 
 Now it's time to create our second Dynamic Table. We are going to call this table `master_product` to represent the information about each product of our coffe shop. This information is stoed in Minio (s3) in a CSV file. We will this data to enrich the purchase stream.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
 
 ```sql,line-numbers,wrap
 CREATE TABLE master_product (
@@ -101,7 +101,7 @@ CREATE TABLE master_product (
 ```
 In the Editor toolbar, click `Run`to execute the SQL statement.  You will also be able to see the new created table on the Catalog (left side of the SQL Editor).
 
-### Step 6: Run a SELECT statement to print master_product:
+### Step 5: Run a SELECT statement to print master_product:
 
 Again, let's confirm the table creation was successful.  Run the follow statement in the SQL Editor to print the `master_product` table rows. Replace any previous query.
 
@@ -115,7 +115,7 @@ To stop the SELECT query, click on the pause `||` button located above the resul
 
 ### Optional:
 
-If you are curious to see the CSV file that contains the product details, you can print its content using the Minio CLI tool. Run the following command in the [button label="CLI tab"](tab-1).
+If you are curious to see the CSV file that contains the product details, you can print its content using the Minio CLI tool. Run the following command in the CLI tab.
 
 ```bash,line-numbers,wrap
 ./mc cat vvpminio/data/product/products.csv
@@ -131,7 +131,7 @@ In this second lab, you will learn how develop and run data enrichment and aggre
 
 The first step we need to do is to enrich the purchase stream with the product details, so the see the actual product name instead of product id. To do that, we are going to a JOIN function and match `product_id` column from both tables.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
 
 ```sql,line-numbers,wrap
 SELECT
@@ -150,7 +150,7 @@ In the Editor toolbar, click `Run`to execute the SQL statement.  Observe now tha
 
 Now that data is enriched, we can do basic analytics. Let's start aggregating by the `item` attribute every 10 seconds. To do this, we will use the TUMBLE window function as you can see below.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
 
 ```sql,line-numbers,wrap
 SELECT
@@ -170,7 +170,7 @@ In the Editor toolbar, click `Run`to execute the SQL statement.  Observe the dif
 
 Let's try a new Window function. **Hopping** also us to have a different window size and window slide. In this example, the query aggregates the sales of the last 60 seconds, reported every 10 seconds, only for the *Superfoods Smoothies*	produc category.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
 
 ```sql,line-numbers,wrap
 SELECT
@@ -192,7 +192,7 @@ In the Editor toolbar, click `Run`to execute the SQL statement.  Observe the dif
 
 Finally, the business wants to see how the sales perform including information about the product, where the sales took place (state) and the relevant metrics to take decisions with a 30 seconds window.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
 
 ```sql,line-numbers,wrap
 SELECT
@@ -227,7 +227,7 @@ Lab 3: Sink Processed Data
 ### Step 1: Create a Catalog
 Let's create our Catalog pointing to the Postgres database. When creating a Catalog in Flink, the creation process will scan the databases and tables the user configured in the connection has access and create the metadata. Once the CREATE CATALOG process is finished, developers can use the tables create for queries.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
 
 ```sql,line-numbers,wrap
 CREATE CATALOG dwh WITH (
@@ -256,7 +256,7 @@ Close the Describe column panel (the `x`icon in the image above).
 
 Now that we confirmed the destination table we will sink the result data is created, it's time to deployed the job that will run our data enrichment and aggregation and store the results.
 
-Go to [button label="Ververica tab"](tab-2), then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
+Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL statement in the SQL Editor. Replace any previous query:
 
 ```sql,line-numbers,wrap
 INSERT INTO dwh.sales_report.purchase_report
@@ -307,10 +307,10 @@ Click on the *Overview* tab to observe the Job Graph, including the data sources
 ![Screenshot 2025-08-26 at 10.44.40.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/ea3dff210c72562967a7d66014939155/assets/Screenshot%202025-08-26%20at%2010.44.40.png)
 
 ### Step 6: Confirm data is sinking to Postgres
-Let's run a simple SELECT to check data is landing in the Postgres table. Run the following command in the [button label="CLI tab"](tab-1) to start a Postgres database connection. Introduce the password 'admin1':
+Let's run a simple SELECT to check data is landing in the Postgres table. Run the following command in the CLI tab to start a Postgres database connection. Introduce the password 'admin1':
 
 ```bash,line-numbers,wrap
-psql -p 5432 -d sales_report -U root -W
+psql -p 5432 -d sales_report -U root -W -h kubernetes-vm
 ```
 
 Once the Postgres client connection is ready, copy and paste the following query:
@@ -329,7 +329,7 @@ Lab 4: Build Real-Time Visualizations
 ===
 
 ### Step 1: Create a Data Source in Grafana
-Go to [button label="Grafana tab"](tab-4), then click on the Grafana logo (top left-hand side) and go to Connections -> Add new connection:
+Go to Grafana tab, then click on the Grafana logo (top left-hand side) and go to Connections -> Add new connection:
 
 ![Screenshot 2025-08-26 at 10.55.45.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/518c753d0887f61950e3d42aa021768d/assets/Screenshot%202025-08-26%20at%2010.55.45.png)
 
