@@ -1,6 +1,12 @@
-# Security group to allow SSH access
+resource "random_string" "sg_suffix" {
+  length  = 6
+  upper   = false
+  special = false
+}
+
+# Security group to access to all post
 resource "aws_security_group" "labday_sgn" {
-  name        = "labday_sgn"
+  name        = "labday_sgn-${random_string.sg_suffix.result}"
 
   ingress {
     description     = "Allow all traffic within the same security group"
