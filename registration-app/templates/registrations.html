@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Registrations</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 900px; margin: 40px auto; }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo img { max-width: 150px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+    th { background-color: #f4f4f4; }
+    tr:nth-child(even) { background-color: #fafafa; }
+    a { text-decoration: none; color: #007bff; }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+  </div>
+
+  <h1>All Registrations</h1>
+  <p><a href="{{ url_for('register') }}">← Back to registration form</a></p>
+
+  {% if registrations %}
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Lab Url</th>
+          <th>Created at</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for r in registrations %}
+          <tr>
+            <td>{{ r.id }}</td>
+            <td>{{ r.name }} {{ r.surname }}</td>
+            <td>{{ r.email }}</td>
+            <td><a href="http://{{ r.lab_url }}">http://{{ r.lab_url }}</a></td>
+            <td>{{ r.created_at }}</td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No registrations yet.</p>
+  {% endif %}
+</body>
+</html>
