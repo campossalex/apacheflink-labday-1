@@ -32,6 +32,9 @@ systemctl start shellinaboxd
 # Copy Salesgen python script to /home/admin folder
 sudo cp -Rv ververica-platform-playground/salesgen /home/admin/
 
+# Copy license yaml
+sudo mv /user/ec2-user/values-license.yaml /root/ververica-platform-playground/setup/helm/values-license.yaml
+
 # add a dns record to /etc/hosts
 echo "127.0.0.1 kubernetes-vm" >> /etc/hosts
 
