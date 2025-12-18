@@ -134,7 +134,7 @@ resource "aws_instance" "labday" {
     sudo ./ververica-platform-playground/pre-install.sh > /var/log/labday_setup.log 2>&1
 
     # Run setup script
-    sudo ./ververica-platform-playground/setup.sh > /var/log/labday_setup.log 2>&1
+    sudo ./ververica-platform-playground/setup.sh -e ${var.edition} > /var/log/labday_setup.log 2>&1
 
     # Run post-install script   
     sudo ./ververica-platform-playground/post-install.sh > /var/log/labday_setup.log 2>&1
@@ -148,4 +148,48 @@ resource "aws_instance" "labday" {
     Name = "labday-instance-${count.index}"
     owner = var.owner
   }
+
+
+}
+
+resource "null_resource" "enterprise_license" {
+  count = var.edition == "enterprise" ? var.instance_count : 0
+
+  triggers = {
+    instance_id = aws_instance.labday[count.index].id
+  }
+
+
+  provisioner "file" {
+    on_failure = continue
+    source      = "${path.module}/../setup/helm/values-license.yaml"
+    destination = "values-license.yaml"
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = aws_instance.labday[count.index].public_ip
+      private_key = file("${path.module}/key-pair/${var.key_name}.pem")
+    }
+  }
+
+  provisioner "remote-exec" {
+    on_failure = continue
+    inline = [
+      "sudo mv /home/ec2-user/values-license.yaml /values-license.yaml",
+      "sudo chown root:root /values-license.yaml",
+      "sudo chmod 0644 /values-license.yaml",
+    ]
+
+    connection {
+      type        = "ssh"
+      user        = "ec2-user"
+      host        = aws_instance.labday[count.index].public_ip
+      private_key = file("${path.module}/key-pair/${var.key_name}.pem")
+      timeout     = "5m"
+    }
+  }
+
+  depends_on = [aws_instance.labday]
+
 }

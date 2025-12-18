@@ -1,6 +1,12 @@
 provider "aws" {
   region = "eu-central-1"
 }
+
+# VVP Edition
+variable "edition" {
+  default = "community"
+}
+
   
 # Number of EC2 instances
 variable "instance_count" {
