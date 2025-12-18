@@ -99,6 +99,7 @@ install_vvp() {
   helm_additional_parameters=
   
   if [ "$edition" == "enterprise" ]; then
+    echo "Installing Enterprise..."
     helm_install_vvp \
       --values /root/ververica-platform-playground/setup/helm/values-license.yaml \
       $helm_additional_parameters
@@ -106,15 +107,11 @@ install_vvp() {
     # try installation once (aborts and displays license)
     helm_install_vvp $helm_additional_parameters
 
-    if prompt "Do you want to pass 'acceptCommunityEditionLicense=true'?"; then
-      echo "Installing..."
-      helm_install_vvp \
-        --set acceptCommunityEditionLicense=true \
-        $helm_additional_parameters
-    else
-      echo "Ververica Platform installation aborted."
-      exit 1
-    fi
+    echo "Installing Community..."
+    helm_install_vvp \
+      --set acceptCommunityEditionLicense=true \
+      $helm_additional_parameters
+
   fi
 
 }
