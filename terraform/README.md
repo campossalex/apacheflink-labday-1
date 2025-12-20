@@ -5,7 +5,14 @@
 - Terraform installed   
 - AWS CLI installed  
 - Configure aws cli with your aws key credentials
-- Key pair generated in the region you wil deploy the environment  
+- Key pair generated in the region you wil deploy the environment
+
+## Additional requirements  
+
+⚠️ Only if you want to deploy with a VVP license
+
+- Key pair file (.pem): upload to `terraform/key-pair/`
+- VVP license (.yaml): upload to `setup/helm/vvp-licenses.yaml`
 
 # Steps  
 
@@ -23,7 +30,8 @@ nano terraform.tfvars
 ```
 - `instance_count`, how many instances you need, default is 1. More than 1 is a usually used for public-facing workshop.
 - `key_name`, the key pair to use to launch the ec2 instances
-- `owner`, your name to identify to tag the resources  
+- `owner`, your name to identify to tag the resources
+- `edition`, choose `community` or `enterprise`. Enterprise will required the additional requirement mentioned before.  
 4. Then initiate terraform  
 ```console
 terraform init
