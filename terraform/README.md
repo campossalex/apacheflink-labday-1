@@ -11,8 +11,8 @@
 
 ⚠️ Only if you want to deploy with a VVP license
 
-- Key pair file (.pem): upload to `terraform/key-pair/`
-- VVP license (.yaml): upload to `setup/helm/vvp-licenses.yaml`
+- Key pair file (.pem): upload to `terraform/key-pair/`, make sure to use the same value as `key_name`.  
+- VVP license (.yaml): replace `setup/helm/vvp-licenses.yaml` file.  
 
 # Steps  
 
