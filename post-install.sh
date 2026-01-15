@@ -1,19 +1,21 @@
 #!/usr/bin/env bash
 
 # install pip and python libs
-python3 ververica-platform-playground/get-pip.py
-pip3 install faker kafka-python
+python3 ververica-platform-playground/setup/get-pip.py
+pip3 install faker kafka-python flask pymysql
 
-# postgresql install
-dnf install postgresql15.x86_64 postgresql15-server -y
-sudo postgresql-setup --initdb
-printf '%s\n' >> "/var/lib/pgsql/data/pg_hba.conf" \
+# postgresql 14 install
+sudo cp ververica-platform-playground/pgsql/pgdg.repo /etc/yum.repos.d/pgdg.repo
+sudo yum makecache
+sudo yum install postgresql14 postgresql14-server -y
+sudo postgresql-14-setup initdb
+printf '%s\n' >> "/var/lib/pgsql/14/data/pg_hba.conf" \
   'host     all     all     0.0.0.0/0     md5'
-printf '%s\n' >> "/var/lib/pgsql/data/postgresql.conf" \
+printf '%s\n' >> "/var/lib/pgsql/14/data/postgresql.conf" \
   "listen_addresses = '*'"
-systemctl restart postgresql
+systemctl restart postgresql-14
 
-sudo cp ververica-platform-playground/pg_ddl.sql /pg_ddl.sql
+sudo cp ververica-platform-playground/pgsql/pg_ddl.sql /pg_ddl.sql
 sudo chown postgres:postgres /pg_ddl.sql
 sudo -i -u postgres psql -a -w -f /pg_ddl.sql
 
@@ -39,3 +41,19 @@ chmod +x mc
 ./mc mb vvpminio/data
 ./mc mb vvpminio/data/product
 ./mc od if=ververica-platform-playground/data/products.csv of=vvpminio/data/product/products.csv
+
+cp mc /home/admin/mc
+chmod +x /home/admin/mc
+cp -Rv .mc /home/admin/.
+chown -R admin:admin /home/admin/.mc
+
+## Register Lab Env
+MYSQL_HOST="$(cat regform-ip.txt)"
+PUBLIC_DNS=$(curl --silent http://169.254.169.254/latest/meta-data/public-hostname)
+python3 ververica-platform-playground/registration-app/register_lab_environment.py $PUBLIC_DNS $MYSQL_HOST
+
+## Run sales gen
+screen -dmS salesgen bash -c 'cd ververica-platform-playground/salesgen/; python3 purchases.py'
+
+## Start Web App
+screen -dmS web_app bash -c 'PUBLIC_DNS=$(curl --silent http://169.254.169.254/latest/meta-data/public-hostname); python3 ververica-platform-playground/web/app.py $PUBLIC_DNS'
