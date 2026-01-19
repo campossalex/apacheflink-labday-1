@@ -28,6 +28,9 @@ Navigate to the `Topics` option in the left-hand side menu, and then link on the
 
 ![1.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/0a143cefb929072dd3d4ea5c29798c97/assets/1.png)
 
+![1.png](https://github.com/campossalex/apacheflink-labday-1/blob/101cd07a146271c6124660d975e48ebc9ce9610c/web/screenshots/1.png)
+
+
 This confirms purchase events are generated and published to the Kafka topic.
 
 ### Step 2: Create a Flink Table to consume purchase events:
