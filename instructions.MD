@@ -248,7 +248,7 @@ The target table is called *purchase_report*.  Use the `+` buttons to navigate t
 
 *DESCRIBE* is a DDL function to list table's columns name and data type. In the SQL Editor, this informations will be displayed in the bottom. Scroll down to check this information (see image below).
 
-![Screenshot 2025-08-25 at 02.20.03.png](https://github.com/campossalex/apacheflink-labday-1/blob/2ffd17afa410933e1423686731fdeacfd2dee47e/web/screenshots/Screenshot%202025-08-25%20at%2002.20.03.png)
+![Screenshot 2025-08-25 at 02.20.03.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-25%2520at%252002.20.03.png)
 
 Close the Describe column panel (the `x`icon in the image above).
 
@@ -284,27 +284,27 @@ GROUP BY
 ### Step 4: Deploying the Job
 
 In the Editor toolbar, click on `Run` to execute the SQL statement.  At this moment, you will be asked to create a SQL Deployment. Click `OK` to start the deployment process.
-![Screenshot 2025-08-26 at 00.27.36.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/d80fe809d19c6a1f7895a7278af6781d/assets/Screenshot%202025-08-26%20at%2000.27.36.png)
+![Screenshot 2025-08-26 at 00.27.36.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252000.27.36.png)
 
 In the Create SQL Deployment, enter 'sales_aggregation_job' for  *Deployment Name* and select 'sql-editor' in *Deployment Target*.
-![Screenshot 2025-08-26 at 00.29.10.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/7eaee7ffb7cd75530c101c0f0af4f28a/assets/Screenshot%202025-08-26%20at%2000.29.10.png)
+![Screenshot 2025-08-26 at 00.29.10.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252000.29.10.png)
 
 When you select the 'sql-editor' target to run your job,  you are choosing a Session Cluster. Just confirm by clicking on `OK` button.
-![Screenshot 2025-08-26 at 00.29.25.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/af2c5a4e1818e06558fe544976536eb3/assets/Screenshot%202025-08-26%20at%2000.29.25.png)
+![Screenshot 2025-08-26 at 00.29.25.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252000.29.25.png)
 
 Confirm Parallelism is set '1' for our job and then click on `Create SQL Deployment`. The deployment will start and compute resource will be allocated to run the job:
-![Screenshot 2025-08-26 at 00.30.06.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/5596b75448b670cea3277bf10797710a/assets/Screenshot%202025-08-26%20at%2000.30.06.png)
+![Screenshot 2025-08-26 at 00.30.06.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252000.30.06.png)
 
 ### Step 5: Deployment Job Status
 Once the Deployment is triggered, the page will displayed the job status. Wait for a few minutes and the job will change to *Running* status (green):
-![Screenshot 2025-08-26 at 00.30.50.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/9b70e3390b114471dcc18ba9a127229a/assets/Screenshot%202025-08-26%20at%2000.30.50.png)
+![Screenshot 2025-08-26 at 00.30.50.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252000.30.50.png)
 
 Click on the *Events* tab to confirm the latest status is 'Transition to RUNNING completed':
-![Screenshot 2025-08-26 at 00.32.12.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/366226be0b4a8b79015c3a8ca2b6763f/assets/Screenshot%202025-08-26%20at%2000.32.12.png)
+![Screenshot 2025-08-26 at 00.32.12.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252000.32.12.png)
 
 Click on the *Overview* tab to observe the Job Graph, including the data sources, the job in the middle and the destination:
 
-![Screenshot 2025-08-26 at 10.44.40.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/ea3dff210c72562967a7d66014939155/assets/Screenshot%202025-08-26%20at%2010.44.40.png)
+![Screenshot 2025-08-26 at 10.44.40.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252010.44.40.png)
 
 ### Step 6: Confirm data is sinking to Postgres
 Let's run a simple SELECT to check data is landing in the Postgres table. Run the following command in the CLI tab to start a Postgres database connection. Introduce the password 'admin1':
@@ -320,7 +320,7 @@ SELECT count(*) FROM purchase_report;
 ```
 And press ENTER to execute the SQL. This query will return the number (COUNT function) of records that are currently stored in the table.
 
-![Screenshot 2025-08-26 at 10.45.41.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/3a9b4708d415931334a6bae49abf6c83/assets/Screenshot%202025-08-26%20at%2010.45.41.png)
+![Screenshot 2025-08-26 at 10.45.41.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252010.45.41.png)
 
 We've got 1.081 records. You will see a different number of rows for your lab environment. All good, data is sinking to Postgres and your pipeline is running properly!
 
@@ -331,15 +331,15 @@ Lab 4: Build Real-Time Visualizations
 ### Step 1: Create a Data Source in Grafana
 Go to Grafana tab, then click on the Grafana logo (top left-hand side) and go to Connections -> Add new connection:
 
-![Screenshot 2025-08-26 at 10.55.45.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/518c753d0887f61950e3d42aa021768d/assets/Screenshot%202025-08-26%20at%2010.55.45.png)
+![Screenshot 2025-08-26 at 10.55.45.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252010.55.45.png)
 
 Type 'Postgres' in the search bar to create a Postgres connection , then click on the Postgres logo:
 
-![Screenshot 2025-08-26 at 10.57.19.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/3e7d7e4fa920f738b3df4487a56c3f52/assets/Screenshot%202025-08-26%20at%2010.57.19.png)
+![Screenshot 2025-08-26 at 10.57.19.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252010.57.19.png)
 
 Once in the new Data source form, enter 'sales_dwh' in the Name field:
 
-![Screenshot 2025-08-26 at 12.50.31.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/bfc72b4a299eead82fa1cd198d40b762/assets/Screenshot%202025-08-26%20at%2012.50.31.png)
+![Screenshot 2025-08-26 at 12.50.31.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252012.50.31.png)
 
 In Connection section, add the following values:
 
@@ -351,19 +351,19 @@ In Authtentication, add the following values:
 - **Username**: root
 - **Password**: admin1
 
-![Screenshot 2025-08-26 at 11.00.45.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/6d9dbeb4b7add3efa921e82ea2b67fc1/assets/Screenshot%202025-08-26%20at%2011.00.45.png)
+![Screenshot 2025-08-26 at 11.00.45.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252011.00.45.png)
 
 - In **TLS/SSL Auth Details**, select Disabled.
 -
 - In **Additional Settings**, select Version 12.
 
-![Screenshot 2025-08-26 at 10.59.57.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/c6cbd2fd474b1f18babce8a69533217c/assets/Screenshot%202025-08-26%20at%2010.59.57.png)
+![Screenshot 2025-08-26 at 10.59.57.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252010.59.57.png)
 
 Now click on the `Save & Test` button to create the connection.
 
 If process is correct, you will see a confirmation message:
 
-![Screenshot 2025-08-26 at 11.00.56.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/aaa9e540c2f6c4258247c41ad6515557/assets/Screenshot%202025-08-26%20at%2011.00.56.png)
+![Screenshot 2025-08-26 at 11.00.56.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252011.00.56.png)
 
 Now you are connect to create your first dashboard. Click on the 'build a dahsboard' link to start to create a new dashboard. If you are familiar with Grafana, you can use your creative to build a dashboard and graphs.
 
@@ -377,26 +377,26 @@ First, download the JSON template that you will use.
 Right click on this [link](https://raw.githubusercontent.com/campossalex/ververica-platform-playground/refs/heads/master/grafana-dashboard.json) and file the JSON file in your computer.
 
 Click on the Grafana logo (top left-hand side) and select the option *Dashboards*.
-![Screenshot 2025-08-26 at 21.43.10.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/f12008db88eb4ccfc565a738f21709d6/assets/Screenshot%202025-08-26%20at%2021.43.10.png)
+![Screenshot 2025-08-26 at 21.43.10.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.43.10.png)
 
 Click on the `Create Dashboard` button.
-![Screenshot 2025-08-26 at 21.43.28.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/fc14435a2b8b839b97d2dbddb60bb595/assets/Screenshot%202025-08-26%20at%2021.43.28.png)
+![Screenshot 2025-08-26 at 21.43.28.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.43.28.png)
 
 Then click on the `Import Dashboard`  button to start a new import process.
-![Screenshot 2025-08-26 at 21.44.14.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/1c04e0f142aca847971f408f8fb8d6ed/assets/Screenshot%202025-08-26%20at%2021.44.14.png)
+![Screenshot 2025-08-26 at 21.44.14.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.44.14.png)
 
 Click on `Upload dashboard JSON file`. A window will open to select the JSON template file downloaded in your computer.
-![Screenshot 2025-08-26 at 21.44.44.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/342369daac454e17baf4a8e3082f9a9d/assets/Screenshot%202025-08-26%20at%2021.44.44.png)
+![Screenshot 2025-08-26 at 21.44.44.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.44.44.png)
 
 Once file is selected, a second page is opened to set the dashboard Name. Just click on the `Import` blue button.
-![Screenshot 2025-08-26 at 21.45.22.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/189607b9f30fa9305e90aec041b12489/assets/Screenshot%202025-08-26%20at%2021.45.22.png)
+![Screenshot 2025-08-26 at 21.45.22.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.45.22.png)
 
 Dashboard is imported successfuly, but graphs and data is not lodaded. You need now to link the dashboard with the data source created previously.
 Located on the top right-side of the Dashboard panel, click on `Edit` button, then `Settings`.
-![Screenshot 2025-08-26 at 21.46.44.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/0c0588c2fd8fd700512f4e92f3f460a2/assets/Screenshot%202025-08-26%20at%2021.46.44.png)
+![Screenshot 2025-08-26 at 21.46.44.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.46.44.png)
 
 Once in the dashboard settings page, click on the *Variables* tab, then `+ New Variable` to create a new variable.
-![Screenshot 2025-08-26 at 22.28.22.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/065e4247c7dbebdb0b6acd70b84d4d65/assets/Screenshot%202025-08-26%20at%2022.28.22.png)
+![Screenshot 2025-08-26 at 22.28.22.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252022.28.22.png)
 
 A new variable form is displayed. Fill it up with the following information:
 
@@ -404,36 +404,21 @@ A new variable form is displayed. Fill it up with the following information:
 - **Name**: datasource (case sensitive)
 - **Data Source type**: Postgres
 
-![Screenshot 2025-08-26 at 21.47.31.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/e7cabda7878cb7b83243bf02ec498c16/assets/Screenshot%202025-08-26%20at%2021.47.31.png)
+![Screenshot 2025-08-26 at 21.47.31.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.47.31.png)
 
 At the bottom of the form, confirm 'Preview of values' shows the data source name we set before, 'sales_dwh'. That means Grafana will be able to replace the variable placeholder by the datasource id.
-![Screenshot 2025-08-26 at 21.47.53.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/2a2e8e7b6fe7295e82b2271ba4e13e92/assets/Screenshot%202025-08-26%20at%2021.47.53.png)
+![Screenshot 2025-08-26 at 21.47.53.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.47.53.png)
 
 On the top right-side of the form, click on the `Save Dashboard` button to finish the configuration.
-![Untitled 1.jpg](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/c4815918ff51c8582a53fcfbd64b569e/assets/Untitled%201.jpg)
+![Untitled 1.jpg](https://github.com/campossalex/apacheflink-labday-1/blob/8217f057a6091c89f7b15d303cb7ce84514f3840/web/screenshots/save_variable_grafana.jpg)
 
 Click on the `Save` blue button to finish the process.
-![Screenshot 2025-08-26 at 21.48.18.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/06248f9432f3d402e6c413f644b7afb3/assets/Screenshot%202025-08-26%20at%2021.48.18.png)
+![Screenshot 2025-08-26 at 21.48.18.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.48.18.png)
 
 Once the final step is closed, click on the `<- Back to Dashboard` button, located on the top right-side of the form.
-![Untitled 2.jpg](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/06158585355e12d74f8dc31f7d35a5eb/assets/Untitled%202.jpg)
+![Untitled 2.jpg](https://github.com/campossalex/apacheflink-labday-1/blob/8217f057a6091c89f7b15d303cb7ce84514f3840/web/screenshots/variable_grafana_setting.jpg)
 
 Now the Dashboard will load the data using the connection created to the Postgres database.
-![Screenshot 2025-08-26 at 21.48.58.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/dff55e3d5f0cca71e6f19ac3fe8d642f/assets/Screenshot%202025-08-26%20at%2021.48.58.png)
+![Screenshot 2025-08-26 at 21.48.58.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.48.58.png)
 
 Congrats, you made it 👏 Now dashboard is loading data in real-time. The default time range is set to the last 30 minutes. Change the range and observe the new data that will be loaded.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
