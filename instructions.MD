@@ -26,10 +26,7 @@ Go to Redpanda tab to see the actual data arriving in the Kafka topic.
 
 Navigate to the `Topics` option in the left-hand side menu, and then link on the topic `store.purchases` . This is where the purchases events are arriving in Kafka.  Choose one of the messages, and click on the arrow to expand the event details. You will be able to see the actual JSON data.
 
-![1.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/0a143cefb929072dd3d4ea5c29798c97/assets/1.png)
-
 ![1.png](https://github.com/campossalex/apacheflink-labday-1/blob/101cd07a146271c6124660d975e48ebc9ce9610c/web/screenshots/1.png)
-
 
 This confirms purchase events are generated and published to the Kafka topic.
 
@@ -247,7 +244,7 @@ In the Editor toolbar, click `Run`to execute the SQL statement.  Observe the *Sc
 
 The target table is called *purchase_report*.  Use the `+` buttons to navigate to the table: dwh -> sales_report -> purchase_report. Once you find it, right click on the table name and select the option *Describe* (see the image below).
 
-![Screenshot 2025-08-25 at 02.18.55.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/ead84ae123f7f758b24ae3551ec1f386/assets/Screenshot%202025-08-25%20at%2002.18.55.png)
+![Screenshot 2025-08-25 at 02.18.55.png](https://github.com/campossalex/apacheflink-labday-1/blob/2ffd17afa410933e1423686731fdeacfd2dee47e/web/screenshots/Screenshot%25202025-08-25%2520at%252002.18.55.png)
 
 *DESCRIBE* is a DDL function to list table's columns name and data type. In the SQL Editor, this informations will be displayed in the bottom. Scroll down to check this information (see image below).
 
