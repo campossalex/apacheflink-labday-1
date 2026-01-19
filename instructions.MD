@@ -248,7 +248,7 @@ The target table is called *purchase_report*.  Use the `+` buttons to navigate t
 
 *DESCRIBE* is a DDL function to list table's columns name and data type. In the SQL Editor, this informations will be displayed in the bottom. Scroll down to check this information (see image below).
 
-![Screenshot 2025-08-25 at 02.20.03.png](https://play.instruqt.com/assets/tracks/bqfnfdcejmah/4edaded6f97e8ef37e55303e6ff0c973/assets/Screenshot%202025-08-25%20at%2002.20.03.png)
+![Screenshot 2025-08-25 at 02.20.03.png](https://github.com/campossalex/apacheflink-labday-1/blob/2ffd17afa410933e1423686731fdeacfd2dee47e/web/screenshots/Screenshot%202025-08-25%20at%2002.20.03.png)
 
 Close the Describe column panel (the `x`icon in the image above).
 
