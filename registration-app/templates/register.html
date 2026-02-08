@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Registration</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; }
+    .logo { text-align: center; margin-bottom: 24px; }
+    .logo img { max-width: 150px; }
+    label { display: block; margin-top: 12px; font-weight: 600; }
+    input { width: 100%; padding: 8px; margin-top: 4px; box-sizing: border-box; }
+    button { margin-top: 16px; padding: 10px 16px; cursor: pointer; }
+    .flash { margin-top: 16px; padding: 10px; border-radius: 4px; }
+    .flash.success { background: #e6ffed; border: 1px solid #2ecc71; color: #155724; }
+    .flash.error { background: #ffecec; border: 1px solid #e74c3c; color: #721c24; }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
+  </div>
+
+  <h1>Register</h1>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      {% for category, msg in messages %}
+        <div class="flash {{ category }}">{{ msg }}</div>
+      {% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <form method="post" action="{{ url_for('register') }}">
+    <label for="name">Name</label>
+    <input id="name" name="name" required>
+
+    <label for="surname">Surname</label>
+    <input id="surname" name="surname" required>
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required>
+
+    <button type="submit">Sign up</button>
+  </form>
+</body>
+</html>
+

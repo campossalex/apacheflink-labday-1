@@ -1,0 +1,211 @@
+networks:
+  lakehouse-net:
+    name: lakehouse-net
+
+services:
+  zookeeper:
+    image: zookeeper:3.9.2
+    restart: always
+    networks: [lakehouse-net]
+
+  # MinIO (S3) for the Iceberg warehouse
+  minio:
+    image: quay.io/minio/minio:latest
+    restart: always
+    networks: [lakehouse-net]
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+      MINIO_REGION: us-east-1
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/ready"]
+      interval: 2s
+      timeout: 2s
+      retries: 60
+
+  minio-init:
+    image: minio/mc:latest
+    networks: [lakehouse-net]
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -lc "
+      set -e;
+      for i in $(seq 1 60); do
+        /usr/bin/mc alias set local http://minio:9000 minio minio123 && break || true;
+        sleep 1;
+      done;
+      /usr/bin/mc mb -p local/warehouse || true;
+      /usr/bin/mc ls local/warehouse || true;
+      exit 0;
+      "
+
+  # Nessie (Iceberg REST catalog)
+  nessie:
+    image: ghcr.io/projectnessie/nessie:latest
+    restart: always
+    networks: [lakehouse-net]
+    ports:
+      - "19120:19120"
+    depends_on:
+      - minio-init
+    environment:
+      # Default warehouse name + location
+      # (Use s3a:// here so HadoopFileIO + S3A is the natural client path)
+      NESSIE_CATALOG_DEFAULT_WAREHOUSE: warehouse
+      NESSIE_CATALOG_WAREHOUSES_WAREHOUSE_LOCATION: s3a://warehouse/fluss/
+
+      # S3/MinIO settings
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_REGION: us-east-1
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_ENDPOINT: http://minio:9000
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_PATH_STYLE_ACCESS: "true"
+
+      # Credentials via Nessie secrets (Quarkus config-backed)
+      NESSIE_CATALOG_SERVICE_S3_DEFAULT_OPTIONS_ACCESS_KEY: urn:nessie-secret:quarkus:mysecretsdefault
+      MYSECRETSDEFAULT_NAME: minio
+      MYSECRETSDEFAULT_SECRET: minio123
+
+      NESSIE_CATALOG_ICEBERG_CONFIG_DEFAULTS_IO__IMPL: org.apache.iceberg.hadoop.HadoopFileIO
+      NESSIE_CATALOG_ICEBERG_CONFIG_DEFAULTS_WRITE_FORMAT_DEFAULT: parquet
+
+    healthcheck:
+      # Nessie returns 200 on /api/v2/config when ready
+      test: ["CMD", "curl", "-fsS", "http://localhost:19120/api/v2/config"]
+      interval: 2s
+      timeout: 2s
+      retries: 60
+
+  coordinator-server:
+    image: apache/fluss:0.8.0-incubating
+    networks: [lakehouse-net]
+    depends_on:
+      nessie:
+        condition: service_healthy
+    environment:
+      HADOOP_CONF_DIR: /etc/hadoop/conf
+      FLUSS_PROPERTIES: |
+        zookeeper.address: zookeeper:2181
+        bind.listeners: FLUSS://coordinator-server:9123
+        remote.data.dir: /tmp/fluss/remote-data
+
+        # Iceberg via Nessie Iceberg REST
+        datalake.format: iceberg
+        datalake.iceberg.type: rest
+        datalake.iceberg.uri: http://nessie:19120/iceberg/main
+
+        # IMPORTANT: override io-impl to avoid S3FileIO (unshaded) and use HadoopFileIO (shaded)
+        datalake.iceberg.io-impl: org.apache.fluss.lake.iceberg.shaded.org.apache.iceberg.hadoop.HadoopFileIO
+
+        # Tell Fluss/Iceberg where the warehouse is (must match Nessie warehouse base)
+        datalake.iceberg.warehouse: s3a://warehouse/fluss/
+
+    volumes:
+      - ./lib:/tmp/lib:ro
+      - ./hadoop-conf:/etc/hadoop/conf:ro
+    entrypoint:
+      - sh
+      - -lc
+      - |
+        # Fluss FS jar still needed for Fluss internals; keep as you had it
+        cp -v /tmp/lib/fluss-fs-s3-*.jar /opt/fluss/lib/ || true
+
+        # Add Hadoop S3A deps to the Iceberg plugin classpath (for HadoopFileIO -> s3a://)
+        cp -v /tmp/lib/hadoop-aws-*.jar /opt/fluss/plugins/iceberg/ || true
+        cp -v /tmp/lib/aws-java-sdk-bundle-*.jar /opt/fluss/plugins/iceberg/ || true
+
+        # Keep any other jars you already place there
+        cp -v /tmp/lib/*.jar /opt/fluss/plugins/iceberg/ || true
+
+        exec /docker-entrypoint.sh coordinatorServer
+
+  tablet-server:
+    image: apache/fluss:0.8.0-incubating
+    networks: [lakehouse-net]
+    depends_on:
+      coordinator-server:
+        condition: service_started
+    environment:
+      HADOOP_CONF_DIR: /etc/hadoop/conf
+      FLUSS_PROPERTIES: |
+        zookeeper.address: zookeeper:2181
+        bind.listeners: FLUSS://tablet-server:9123
+        data.dir: /tmp/fluss/data
+        remote.data.dir: /tmp/fluss/remote-data
+        kv.snapshot.interval: 0s
+
+        datalake.format: iceberg
+        datalake.iceberg.type: rest
+        datalake.iceberg.uri: http://nessie:19120/iceberg/main
+        datalake.iceberg.io-impl: org.apache.fluss.lake.iceberg.shaded.org.apache.iceberg.hadoop.HadoopFileIO
+        datalake.iceberg.warehouse: s3a://warehouse/fluss/
+
+    volumes:
+      - ./lib:/tmp/lib:ro
+      - ./hadoop-conf:/etc/hadoop/conf:ro
+    entrypoint:
+      - sh
+      - -lc
+      - |
+        cp -v /tmp/lib/fluss-fs-s3-*.jar /opt/fluss/lib/ || true
+        cp -v /tmp/lib/hadoop-aws-*.jar /opt/fluss/plugins/iceberg/ || true
+        cp -v /tmp/lib/aws-java-sdk-bundle-*.jar /opt/fluss/plugins/iceberg/ || true
+        cp -v /tmp/lib/*.jar /opt/fluss/plugins/iceberg/ || true
+        exec /docker-entrypoint.sh tabletServer
+
+  jobmanager:
+    image: apache/fluss-quickstart-flink:1.20-0.8.0-incubating
+    networks: [lakehouse-net]
+    restart: always
+    depends_on:
+      coordinator-server:
+        condition: service_started
+    ports:
+      - "8083:8081"
+    environment:
+      HADOOP_CONF_DIR: /etc/hadoop/conf
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+    volumes:
+      - ./lib:/tmp/lib:ro
+      - ./hadoop-conf:/etc/hadoop/conf:ro
+    entrypoint:
+      - sh
+      - -lc
+      - |
+        cp -v /tmp/lib/*.jar /opt/flink/lib/ || true
+        exec /docker-entrypoint.sh jobmanager
+
+  taskmanager:
+    image: apache/fluss-quickstart-flink:1.20-0.8.0-incubating
+    restart: always
+    networks: [lakehouse-net]
+    depends_on:
+      jobmanager:
+        condition: service_started
+    environment:
+      HADOOP_CONF_DIR: /etc/hadoop/conf
+      FLINK_PROPERTIES: |
+        jobmanager.rpc.address: jobmanager
+        taskmanager.numberOfTaskSlots: 10
+        taskmanager.memory.process.size: 2048m
+        taskmanager.memory.framework.off-heap.size: 256m
+    volumes:
+      - ./lib:/tmp/lib:ro
+      - ./hadoop-conf:/etc/hadoop/conf:ro
+    entrypoint:
+      - sh
+      - -lc
+      - |
+        cp -v /tmp/lib/*.jar /opt/flink/lib/ || true
+        exec /docker-entrypoint.sh taskmanager
+
+volumes:
+  minio-data: {}
+
