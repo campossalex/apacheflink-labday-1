@@ -47,6 +47,43 @@ chmod +x /home/admin/mc
 cp -Rv .mc /home/admin/.
 chown -R admin:admin /home/admin/.mc
 
+## Create Postgres data source in Grafana
+SA_ID=$(
+  curl -s \
+    -H "Content-Type: application/json" \
+    -d '{"name":"automation-sa","role":"Admin"}' \
+    "http://localhost:8085/api/serviceaccounts" | jq -r '.id'
+)
+
+TOKEN=$(
+  curl -s \
+    -H "Content-Type: application/json" \
+    -d '{"name":"cli-token","secondsToLive":0}' \
+    "http://localhost:8085/api/serviceaccounts/$SA_ID/tokens" | jq -r '.key'
+)
+
+curl -X POST http://localhost:8085/api/datasources \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "sales_dwh",
+    "type": "postgres",
+    "access": "proxy",
+    "url": "host.minikube.internal:5432",
+    "database": "sales_report",
+    "user": "root",
+    "secureJsonData": {
+      "password": "admin1"
+    },
+    "jsonData": {
+      "sslmode": "disable",
+      "database": "sales_report",
+      "postgresVersion": 1200,
+      "timescaledb": false
+    },
+    "isDefault": false
+  }'
+
 ## Register Lab Env
 MYSQL_HOST="$(cat regform-ip.txt)"
 PUBLIC_DNS=$(curl --silent http://169.254.169.254/latest/meta-data/public-hostname)
