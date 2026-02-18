@@ -2,6 +2,9 @@
 
 ## This script setup all the base system to run the environment lab or demo
 
+# Additional packaes
+sudo yum install -y jq
+
 # Install kubctl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 sudo install -o root -g root -m 0755 kubectl /bin/kubectl
