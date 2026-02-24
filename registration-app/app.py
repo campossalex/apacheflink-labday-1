@@ -51,6 +51,8 @@ def register():
         name = request.form.get("name", "").strip()
         surname = request.form.get("surname", "").strip()
         email = request.form.get("email", "").strip()
+        company = request.form.get("company", "").strip()
+        role = request.form.get("role", "").strip()
 
         if not name or not surname or not email:
             flash("Please fill in all fields.", "error")
@@ -72,7 +74,7 @@ def register():
                     WHERE email IS NULL
                     LIMIT 1;
                     """,
-                    (name, surname, email),
+                    (name, surname, email, company, role),
                 )
 
                 cur.execute("""
