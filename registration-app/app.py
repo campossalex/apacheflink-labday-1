@@ -70,7 +70,7 @@ def register():
                 cur.execute(
                     """
                     UPDATE registrations 
-                    SET name = %s, surname = %s, email = %s
+                    SET name = %s, surname = %s, email = %s, company = %s, role = %s
                     WHERE email IS NULL
                     LIMIT 1;
                     """,
