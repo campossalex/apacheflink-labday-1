@@ -29,8 +29,8 @@ def insert_registration(lab_url, mysql_host):
 
             with conn.cursor() as cur:
                 sql = """
-                INSERT INTO registrations (name, surname, email, lab_url)
-                VALUES (NULL, NULL, NULL, %s)
+                INSERT INTO registrations (name, surname, email, company, role, lab_url)
+                VALUES (NULL, NULL, NULL, NULL, NULL, %s)
                 """
                 cur.execute(sql, (lab_url))
 
