@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -98,13 +99,17 @@
         }
 
         .anim {
-            opacity: 0;
+            opacity: 1;
             animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
         }
         .anim-d1 { animation-delay: 0.08s; }
         .anim-d2 { animation-delay: 0.18s; }
         .anim-d3 { animation-delay: 0.28s; }
         .anim-d4 { animation-delay: 0.38s; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .anim { animation: none; opacity: 1; }
+        }
 
         /* Hero with animated gradient border */
         .hero-wrap {
@@ -165,10 +170,7 @@
             letter-spacing: -0.03em;
             line-height: 1.15;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #ffffff 60%, var(--teal) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            color: #ffffff;
         }
 
         .hero p {
@@ -348,7 +350,7 @@
         <!-- Hero -->
         <div class="hero-wrap anim anim-d1">
             <div class="hero">
-                <img class="logo" src="/static/logo.png" onerror="this.onerror=null;this.src='../static/logo.png';" alt="Ververica">
+                <img class="logo" src="/static/logo_green.png" onerror="this.onerror=null;this.src='../static/logo_green.png';" alt="Ververica">
                 <h1>Apache Flink Lab Day</h1>
                 <p>Register to get access to your hands-on lab environment.</p>
             </div>
@@ -357,7 +359,7 @@
         <!-- Flash messages (injected by server via JS) -->
         <div id="flash-container"></div>
         <script>
-            var flashMessages = {{ get_flashed_messages(with_categories=true) | tojson | default('[]', true) }};
+            var flashMessages = [];
             (function() {
                 var container = document.getElementById('flash-container');
                 flashMessages.forEach(function(m) {
