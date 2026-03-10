@@ -166,45 +166,40 @@
 
     <div class="container">
         <div class="header anim anim-d1">
-            <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ververica">
+            <img class="logo" src="/static/logo.png" onerror="this.onerror=null;this.src='../static/logo.png';" alt="Ververica">
             <h1>All Registrations</h1>
         </div>
 
         <a class="back-link anim anim-d1" href="/">&larr; Back to registration form</a>
 
         <div class="section-label anim anim-d2">Participants</div>
-        <div class="table-card anim anim-d3">
-            {% if registrations %}
-            <table>
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Company</th>
-                        <th>Role</th>
-                        <th>Lab URL</th>
-                        <th>Created at</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for r in registrations %}
-                    <tr>
-                        <td>{{ r.id }}</td>
-                        <td>{{ r.name }} {{ r.surname }}</td>
-                        <td>{{ r.email }}</td>
-                        <td>{{ r.company }}</td>
-                        <td>{{ r.role }}</td>
-                        <td><a href="http://{{ r.lab_url }}">{{ r.lab_url }}</a></td>
-                        <td>{{ r.created_at }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            {% else %}
+        <div class="table-card anim anim-d3" id="table-container">
             <p class="empty-msg">No registrations yet.</p>
-            {% endif %}
         </div>
+        <script>
+            // Server injects registration data when served by Flask
+            var registrations = {{ registrations | default([]) | tojson }};
+            (function() {
+                var container = document.getElementById('table-container');
+                if (!registrations || registrations.length === 0) return;
+                var html = '<table><thead><tr>';
+                html += '<th>ID</th><th>Name</th><th>Email</th><th>Company</th><th>Role</th><th>Lab URL</th><th>Created at</th>';
+                html += '</tr></thead><tbody>';
+                registrations.forEach(function(r) {
+                    html += '<tr>';
+                    html += '<td>' + (r.id || '') + '</td>';
+                    html += '<td>' + (r.name || '') + ' ' + (r.surname || '') + '</td>';
+                    html += '<td>' + (r.email || '') + '</td>';
+                    html += '<td>' + (r.company || '') + '</td>';
+                    html += '<td>' + (r.role || '') + '</td>';
+                    html += '<td><a href="http://' + (r.lab_url || '') + '">' + (r.lab_url || '') + '</a></td>';
+                    html += '<td>' + (r.created_at || '') + '</td>';
+                    html += '</tr>';
+                });
+                html += '</tbody></table>';
+                container.innerHTML = html;
+            })();
+        </script>
 
         <div class="footer anim anim-d3">Ververica &middot; Apache Flink Lab Day</div>
     </div>

@@ -173,18 +173,26 @@
         }
     </style>
     <script>
+        // Server injects these values when served by Flask
+        var labData = { name: "{{ name }}", labUrl: "{{ lab_url }}" };
+    </script>
+    <script>
         let seconds = 5;
         function countdown() {
             const timer = document.getElementById("countdown");
             timer.textContent = seconds;
             if (seconds === 0) {
-                window.location.href = "{{ lab_url }}";
+                window.location.href = labData.labUrl;
             } else {
                 seconds--;
                 setTimeout(countdown, 1000);
             }
         }
-        window.onload = countdown;
+        window.onload = function() {
+            document.getElementById("user-name").textContent = labData.name;
+            document.getElementById("lab-link").href = labData.labUrl;
+            countdown();
+        };
     </script>
 </head>
 <body>
@@ -195,15 +203,15 @@
     <div class="container">
         <div class="hero-wrap anim anim-d1">
             <div class="hero">
-                <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ververica">
-                <h1>Welcome, {{ name }}!</h1>
+                <img class="logo" src="/static/logo.png" onerror="this.onerror=null;this.src='../static/logo.png';" alt="Ververica">
+                <h1>Welcome, <span id="user-name"></span>!</h1>
                 <p>Thanks for signing up. Your lab environment is ready.</p>
             </div>
         </div>
 
         <div class="countdown-card anim anim-d2">
             <h2>Redirecting in <span class="countdown-num" id="countdown">5</span> seconds&hellip;</h2>
-            <p>If the redirect doesn't work, <a href="{{ lab_url }}">click here to open your lab</a>.</p>
+            <p>If the redirect doesn't work, <a id="lab-link" href="#">click here to open your lab</a>.</p>
         </div>
 
         <div class="footer anim anim-d3">Ververica &middot; Apache Flink Lab Day</div>

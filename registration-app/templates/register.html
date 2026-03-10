@@ -348,25 +348,31 @@
         <!-- Hero -->
         <div class="hero-wrap anim anim-d1">
             <div class="hero">
-                <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ververica">
+                <img class="logo" src="/static/logo.png" onerror="this.onerror=null;this.src='../static/logo.png';" alt="Ververica">
                 <h1>Apache Flink Lab Day</h1>
                 <p>Register to get access to your hands-on lab environment.</p>
             </div>
         </div>
 
-        <!-- Flash messages -->
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, msg in messages %}
-                    <div class="flash {{ category }} anim anim-d2">{{ msg }}</div>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
+        <!-- Flash messages (injected by server via JS) -->
+        <div id="flash-container"></div>
+        <script>
+            var flashMessages = {{ get_flashed_messages(with_categories=true) | tojson | default('[]', true) }};
+            (function() {
+                var container = document.getElementById('flash-container');
+                flashMessages.forEach(function(m) {
+                    var div = document.createElement('div');
+                    div.className = 'flash ' + m[0] + ' anim anim-d2';
+                    div.textContent = m[1];
+                    container.appendChild(div);
+                });
+            })();
+        </script>
 
         <!-- Registration form -->
         <div class="section-label anim anim-d2">Registration</div>
         <div class="form-card anim anim-d3">
-            <form method="post" action="{{ url_for('register') }}">
+            <form method="post" action="/">
                 <div class="form-row">
                     <div class="form-group">
                         <label for="name">Name</label>
