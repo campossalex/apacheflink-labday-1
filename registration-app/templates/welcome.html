@@ -1,39 +1,212 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Welcome</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 480px; margin: 40px auto; text-align: center; }
-    .logo { text-align: center; margin-bottom: 24px; }
-    .logo img { max-width: 150px; }
-  </style>
-  <script>
-    let seconds = 5;
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome &middot; Apache Flink Lab Day</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @property --border-angle {
+            syntax: '<angle>';
+            initial-value: 0deg;
+            inherits: false;
+        }
 
-    function countdown() {
-      const timer = document.getElementById("countdown");
-      timer.textContent = seconds;
-      if (seconds === 0) {
-        window.location.href = "{{ lab_url }}";
-      } else {
-        seconds--;
-        setTimeout(countdown, 1000);
-      }
-    }
+        :root {
+            --bg-deep: #0a0624;
+            --bg-surface: rgba(255,255,255,0.04);
+            --teal: #05b89c;
+            --teal-glow: rgba(5,184,156,0.25);
+            --purple: #4e21e8;
+            --purple-light: #7c5cf5;
+            --purple-glow: rgba(78,33,232,0.3);
+            --text: #ffffff;
+            --text-muted: rgba(255,255,255,0.55);
+            --text-dim: rgba(255,255,255,0.3);
+            --border: rgba(255,255,255,0.07);
+            --radius: 14px;
+        }
 
-    window.onload = countdown;
-  </script>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Manrope', system-ui, sans-serif;
+            background: var(--bg-deep);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .dot-grid {
+            position: fixed; inset: 0; z-index: 0; pointer-events: none;
+            background-image: radial-gradient(rgba(255,255,255,0.04) 1px, transparent 1px);
+            background-size: 32px 32px;
+            mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
+            -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 30%, black 20%, transparent 100%);
+        }
+
+        .glow-orb {
+            position: fixed; border-radius: 50%; filter: blur(100px); pointer-events: none; z-index: 0;
+        }
+        .glow-orb.purple {
+            width: 600px; height: 600px; top: -15%; left: 40%;
+            background: rgba(78,33,232,0.12);
+            animation: orbFloat 20s ease-in-out infinite;
+        }
+        .glow-orb.teal {
+            width: 400px; height: 400px; bottom: -10%; right: -5%;
+            background: rgba(5,184,156,0.06);
+            animation: orbFloat 25s ease-in-out infinite reverse;
+        }
+
+        @keyframes orbFloat {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -20px) scale(1.05); }
+            66% { transform: translate(-20px, 15px) scale(0.95); }
+        }
+
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateY(24px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .anim {
+            opacity: 0;
+            animation: fadeUp 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+        }
+        .anim-d1 { animation-delay: 0.08s; }
+        .anim-d2 { animation-delay: 0.18s; }
+        .anim-d3 { animation-delay: 0.28s; }
+
+        .container {
+            position: relative; z-index: 1;
+            max-width: 560px; margin: 0 auto; padding: 36px 28px 72px;
+            text-align: center;
+        }
+
+        .hero-wrap {
+            position: relative; padding: 2px; border-radius: 20px; margin-bottom: 40px;
+            background: conic-gradient(from var(--border-angle), var(--purple), var(--teal), var(--purple-light), var(--teal), var(--purple));
+            animation: rotateBorder 6s linear infinite;
+        }
+        @keyframes rotateBorder { to { --border-angle: 360deg; } }
+        .hero-wrap::before {
+            content: ''; position: absolute; inset: 0; border-radius: 20px;
+            background: conic-gradient(from var(--border-angle), var(--purple), var(--teal), var(--purple-light), var(--teal), var(--purple));
+            filter: blur(24px); opacity: 0.35; z-index: -1; animation: rotateBorder 6s linear infinite;
+        }
+
+        .hero {
+            background: var(--bg-deep); border-radius: 18px; text-align: center;
+            padding: 36px 36px 32px; position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: ''; position: absolute; inset: 0;
+            background: radial-gradient(ellipse at 50% 0%, rgba(78,33,232,0.15) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .hero .logo {
+            position: relative; display: block; width: 220px; height: auto;
+            margin: 0 auto 24px; filter: brightness(0) invert(1);
+        }
+
+        .hero h1 {
+            position: relative; font-size: 2.2rem; font-weight: 800;
+            letter-spacing: -0.03em; line-height: 1.15; margin-bottom: 10px;
+            background: linear-gradient(135deg, #ffffff 60%, var(--teal) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .hero p {
+            position: relative; font-size: 1rem; color: var(--text-muted);
+            font-weight: 400; line-height: 1.6;
+        }
+
+        .countdown-card {
+            background: var(--bg-surface); border: 1px solid var(--border);
+            border-radius: var(--radius); padding: 32px; position: relative; overflow: hidden;
+        }
+        .countdown-card::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(5,184,156,0.3), transparent);
+        }
+
+        .countdown-num {
+            display: inline-flex; align-items: center; justify-content: center;
+            width: 48px; height: 48px; background: rgba(5,184,156,0.12);
+            border: 1px solid rgba(5,184,156,0.35); border-radius: 10px;
+            font-size: 1.4rem; font-weight: 800; color: var(--teal);
+            margin: 0 4px;
+        }
+
+        .countdown-card h2 {
+            font-size: 1.1rem; font-weight: 600; margin-bottom: 16px; color: var(--text);
+        }
+
+        .countdown-card p {
+            font-size: 0.92rem; color: var(--text-muted); margin-top: 16px; line-height: 1.5;
+        }
+
+        .countdown-card a {
+            color: var(--teal); text-decoration: none;
+            border-bottom: 1px solid rgba(5,184,156,0.35); transition: all 0.2s ease;
+        }
+        .countdown-card a:hover {
+            border-color: var(--teal);
+        }
+
+        .footer {
+            text-align: center; color: var(--text-dim); font-size: 0.78rem;
+            padding-top: 20px; margin-top: 40px; border-top: 1px solid var(--border);
+            letter-spacing: 0.04em;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 24px 16px 56px; }
+            .hero { padding: 28px 24px 24px; }
+            .hero h1 { font-size: 1.7rem; }
+            .hero .logo { width: 180px; }
+            .countdown-card { padding: 24px 20px; }
+        }
+    </style>
+    <script>
+        let seconds = 5;
+        function countdown() {
+            const timer = document.getElementById("countdown");
+            timer.textContent = seconds;
+            if (seconds === 0) {
+                window.location.href = "{{ lab_url }}";
+            } else {
+                seconds--;
+                setTimeout(countdown, 1000);
+            }
+        }
+        window.onload = countdown;
+    </script>
 </head>
 <body>
-  <div class="logo">
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo">
-  </div>
+    <div class="dot-grid"></div>
+    <div class="glow-orb purple"></div>
+    <div class="glow-orb teal"></div>
 
-  <h1>Welcome, {{ name }}!</h1>
-  <h2>You will be redirected in <span id="countdown">5</span> seconds…</h2>
-  <p>If the redirect doesn’t work, <a href="{{ lab_url }}">click here</a>.</p>
+    <div class="container">
+        <div class="hero-wrap anim anim-d1">
+            <div class="hero">
+                <img class="logo" src="{{ url_for('static', filename='logo.png') }}" alt="Ververica">
+                <h1>Welcome, {{ name }}!</h1>
+                <p>Thanks for signing up. Your lab environment is ready.</p>
+            </div>
+        </div>
 
-  <p>Thanks for signing up.</p>
+        <div class="countdown-card anim anim-d2">
+            <h2>Redirecting in <span class="countdown-num" id="countdown">5</span> seconds&hellip;</h2>
+            <p>If the redirect doesn't work, <a href="{{ lab_url }}">click here to open your lab</a>.</p>
+        </div>
+
+        <div class="footer anim anim-d3">Ververica &middot; Apache Flink Lab Day</div>
+    </div>
 </body>
 </html>
