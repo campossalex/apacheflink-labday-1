@@ -50,11 +50,11 @@ def register():
     if request.method == "POST":
         name = request.form.get("name", "").strip()
         surname = request.form.get("surname", "").strip()
-        email = request.form.get("email", "").strip()
         company = request.form.get("company", "").strip()
         role = request.form.get("role", "").strip()
+        email = request.form.get("email", "").strip()
 
-        if not name or not surname or not email:
+        if not name or not surname or not company or not role or not email:
             flash("Please fill in all fields.", "error")
             return redirect(url_for("register"))
 
@@ -62,19 +62,19 @@ def register():
 
         if not row:
             flash("Sorry, no environments available!", "error")
-            return redirect(url_for("register")) 
-            
+            return redirect(url_for("register"))
+
         try:
             conn = get_connection()
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    UPDATE registrations 
-                    SET name = %s, surname = %s, email = %s, company = %s, role = %s
+                    UPDATE registrations
+                    SET name = %s, surname = %s, company = %s, role = %s, email = %s
                     WHERE email IS NULL
                     LIMIT 1;
                     """,
-                    (name, surname, email, company, role),
+                    (name, surname, company, role, email),
                 )
 
                 cur.execute("""
