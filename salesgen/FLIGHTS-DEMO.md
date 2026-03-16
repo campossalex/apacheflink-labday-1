@@ -141,8 +141,6 @@ WHERE movementType = 'DEPARTURE'
 AND irregularityDelays IS NOT NULL;
 
 -- 3. filter for flight status
-
-
 SELECT
     `movementType` as flight_type,
     `airlineIataCode` as airline_code,
