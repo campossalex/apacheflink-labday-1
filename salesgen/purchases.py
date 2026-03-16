@@ -18,7 +18,7 @@ from models.purchase import Purchase
 from models.inventory import Inventory
 
 config = configparser.ConfigParser()
-config.read("/root/ververica-platform-playground/salesgen/configuration/configuration.ini")
+config.read("configuration/configuration.ini")
 
 # USA states to generate data from
 us_state_to_abbrev = ["AZ","CA","CO","ID","MO","NV","NM","OR","UT","WA","WY"]
@@ -59,7 +59,7 @@ def main():
 
 # create products and propensity_to_buy lists from CSV data file
 def create_product_list():
-    with open("/root/ververica-platform-playground/salesgen/data/products.csv", "r") as csv_file:
+    with open("data/products.csv", "r") as csv_file:
         next(csv_file)  # skip header row
         csv_reader = reader(csv_file)
         csv_products = list(csv_reader)
