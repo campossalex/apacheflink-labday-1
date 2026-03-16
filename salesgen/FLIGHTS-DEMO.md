@@ -1,6 +1,6 @@
 
 ```
-python3 flights.py --broker kubernetes-vm:9092 --topic flights
+python3 flights.py --broker kubernetes-vm:9092 --topic flights --interval-min 0 --interval-max 5
 
 
 CREATE TABLE `vvp`.`default`.`flights_events` (
