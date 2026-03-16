@@ -1,4 +1,5 @@
 
+```
 python3 flights.py --broker kubernetes-vm:9092 --topic flights
 
 
@@ -114,3 +115,47 @@ WITH (
   'scan.startup.mode' = 'earliest-offset',
   'topic' = 'flights'
 );
+
+
+-- 1. Latest flight status per airport
+
+SELECT
+airportIataCode,
+movementType,
+airlineIataCode,
+flightNumber,
+operationalStatus,
+sourceUpdated
+FROM flights_events;
+
+-- 2. Departures with delay codes
+SELECT
+`id`,
+airportIataCode,
+airlineIataCode || CAST(flightNumber AS STRING)  AS flight,
+departureAirportIataCode,
+arrivalAirportIataCode,
+irregularityDelays
+FROM flights_events
+WHERE movementType = 'DEPARTURE'
+AND irregularityDelays IS NOT NULL;
+
+-- 3. filter for flight status
+
+
+SELECT
+    `movementType` as flight_type,
+    `airlineIataCode` as airline_code,
+    `flightNumber` as flight_number,
+    departureAirportIataCode as origin,
+    arrivalAirportIataCode as destination,  
+    CAST(
+        CASE `movementType`
+            WHEN 'ARRIVAL'   THEN `scheduledInBlock`
+            WHEN 'DEPARTURE' THEN `scheduledOffBlock`
+            ELSE COALESCE(`scheduledInBlock`, `scheduledOffBlock`)
+        END
+    AS DATE)                                                        AS flight_date
+FROM flights_events 
+WHERE movementType IN('ARRIVAL', 'DEPARTURE');
+```
