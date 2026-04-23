@@ -25,8 +25,6 @@ sudo service docker start
 # start minikube
 sudo minikube start --memory=40G --cpus=12 --force
 
-
-
 # Create ns:
 
 kubectl create ns vvp-system
@@ -37,7 +35,6 @@ kubectl create ns vvp-deploy
 
 kubectl -n vvp-system create secret docker-registry ververica-registry --docker-username=<username> --docker-password=<password> --docker-server=registry.ververica.cloud
 kubectl -n vvp-deploy create secret docker-registry vervververica-registry --docker-username=<username> --docker-password=<password> --docker-server=registry.ververica.cloud
-
 
 # Mysql password secrete
 
@@ -57,7 +54,10 @@ helm upgrade --install ververica-platform oci://registry.ververica.cloud/platfor
 
 kubectl logs vvp-appmanager-0 -n vvp-system
 
+# Ask for a license to Ververica sendinf the TOKEN obtained before.  
+One the license is received, create a license-vvp.yaml with the license content.  
+
 # Upgrade the VVP 3 helm with the license file
 
-helm upgrade --install ververica-platform oci://registry.ververica.cloud/platform-charts/ververica-platform --version 3.1.0 --namespace vvp-system --values values-vvp.yaml
+helm upgrade --install ververica-platform oci://registry.ververica.cloud/platform-charts/ververica-platform --version 3.1.0 --namespace vvp-system --values values-vvp.yaml -f license-vvp.yaml
 ```
