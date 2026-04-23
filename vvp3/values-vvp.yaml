@@ -1,0 +1,53 @@
+global:
+  database:
+    host: mysql.vvp-system.svc.cluster.local
+    port: 3306
+    user: root
+    password: admin123
+
+  blobStorage:
+    baseUri: s3i://vvp
+    s3:
+      endpoint: http://minio.vvp-system.svc:9000
+      accessKeyId: admin
+      secretAccessKey: password
+
+  authentication:
+    single-user:
+      enabled: true
+      username: admin
+      secureCookies: false
+
+  image:
+    registry: registry.ververica.cloud
+  imagePullSecretName: ververica-registry
+
+  rbac:
+    additionalNamespaces:
+      - vvp-system
+      - vvp-deploy
+
+vvp:
+  globalDeploymentDefaults: |
+    spec:
+      state: RUNNING
+      template:
+        spec:
+          resources:
+            jobmanager:
+              cpu: 0.5
+              memory: 1G
+            taskmanager:
+              cpu: 0.5
+              memory: 1G
+          flinkConfiguration:
+            state.backend: filesystem
+            taskmanager.memory.managed.fraction: 0.0 # no managed memory needed for filesystem statebackend
+            high-availability: none
+            s3.access-key: 'admin'
+            s3.secret-key: 'password'
+            s3.endpoint: "http://minio.vvp-system.svc:9000"
+            s3.path.style.access: "true"
+            metrics.reporter.prom.class: org.apache.flink.metrics.prometheus.PrometheusReporter
+            execution.checkpointing.interval: 10s
+            execution.checkpointing.externalized-checkpoint-retention: RETAIN_ON_CANCELLATION

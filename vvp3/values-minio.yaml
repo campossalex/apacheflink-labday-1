@@ -1,0 +1,13 @@
+accessKey: admin
+secretKey: password
+defaultBucket:
+  enabled: true
+  name: vvp-system
+
+resources:
+  requests:
+    memory: 256Mi
+    cpu: 250m
+  limits:
+    memory: 256Mi
+    cpu: 1000m
