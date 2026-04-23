@@ -1,4 +1,5 @@
 
+```
 # Additional packaes
 sudo yum install -y jq
 sudo yum install -y nginx
@@ -59,3 +60,4 @@ kubectl logs vvp-appmanager-0 -n vvp-system
 # Upgrade the VVP 3 helm with the license file
 
 helm upgrade --install ververica-platform oci://registry.ververica.cloud/platform-charts/ververica-platform --version 3.1.0 --namespace vvp-system --values values-vvp.yaml
+```
