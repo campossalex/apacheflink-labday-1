@@ -1,3 +1,9 @@
+## Infrastructure
+Spin up a m5.4xlarge ec2 instance. This instance has 16 cores and 64 Gb memory. If you need more resources to run Flink jobs, use a m5.8xlarge (32 cores / 128 Gb memory).  
+
+## Minikube, Minio, Mysql and VVP 3.1.0 installation process  
+
+Connect to the instances shell to run the following commands:  
 
 ```
 # Additional packaes
