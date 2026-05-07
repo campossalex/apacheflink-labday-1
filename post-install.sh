@@ -93,4 +93,10 @@ python3 ververica-platform-playground/registration-app/register_lab_environment.
 screen -dmS salesgen bash -c 'cd ververica-platform-playground/salesgen/; python3 purchases.py'
 
 ## Start Web App
-screen -dmS web_app bash -c 'PUBLIC_DNS=$(curl --silent http://169.254.169.254/latest/meta-data/public-hostname); python3 ververica-platform-playground/web/app.py $PUBLIC_DNS'
+AWS_TOKEN=$(curl -sS -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 300")
+PUBLIC_DNS=$(curl -sS -H "X-aws-ec2-metadata-token: $AWS_TOKEN" \
+  http://169.254.169.254/latest/meta-data/public-hostname)
+export PUBLIC_DNS
+
+## Start Web App
+screen -dmS web_app bash -c 'python3 ververica-platform-playground/web/app.py $PUBLIC_DNS'
