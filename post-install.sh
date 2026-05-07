@@ -81,7 +81,7 @@ curl -X POST http://localhost:8085/api/datasources \
       "postgresVersion": 1200,
       "timescaledb": false
     },
-    "isDefault": false
+    "isDefault": true
   }'
 
 ## Register Lab Env
