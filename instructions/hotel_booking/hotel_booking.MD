@@ -802,7 +802,7 @@ SELECT * FROM TABLE(table_snapshot('nessie.booking.booking_silver'));
 
 1. Click the Grafana logo → **Dashboards**
 2. Click **Create Dashboard → Import Dashboard**
-3. Upload the JSON template file provided: [booking-revenue-dashboard.json](assets/booking-revenue-dashboard.json) (right-click then ***Save Link As***) 
+3. Upload the JSON template file provided: [booking-revenue-dashboard.json](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/instructions/hotel_booking/assets/booking-revenue-dashboard.json) (right-click then ***Save Link As***) 
 4. In the import settings, link the dashboard to the `booking_dwh` data source you just created
 5. Click **Import**
 
