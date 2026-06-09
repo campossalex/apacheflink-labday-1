@@ -866,7 +866,7 @@ OUTPUT (`output` STRING)
 WITH (
   'provider'      = 'openai',
   'task'          = 'classification',
-  'api-key'       = '<your-openai-api-key>',
+  'api-key'       = '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',
   'model-version' = 'gpt-4o-mini',
   'prompt'        = 'Return three main things to improve based on guest review and score. Respond only with lowercase, one word for improvement, separated by comma.'
 );
