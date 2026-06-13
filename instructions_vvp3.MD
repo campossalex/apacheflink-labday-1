@@ -170,6 +170,7 @@ To stop the SELECT query, click on the pause `||` button located above the resul
 
 The command `cat` will read the file and print its content in the screen. It is a useful way to print file's content.
 
+<!---SECTION: Lab 2: Processing Data in Real-time -->
 Lab 2: Processing Data in Real-time
 ===
 In this second lab, you will learn how develop and run data enrichment and aggregations with Flink .
@@ -276,7 +277,7 @@ GROUP BY
 In the Editor toolbar, click `Run`to execute the SQL statement.  Observe the results.
 
 Done! We have our data enriched and aggregated. Great job!
-
+<!---SECTION: Lab 3: Sink Processed Data -->
 Lab 3: Sink Processed Data
 ===
 
@@ -383,7 +384,7 @@ And press ENTER to execute the SQL. This query will return the number (COUNT fun
 
 We've got 1.081 records. You will see a different number of rows for your lab environment. All good, data is sinking to Postgres and your pipeline is running properly!
 
-
+<!---SECTION: Lab 4: Build Real-Time Visualizations -->
 Lab 4: Build Real-Time Visualizations
 ===
 
