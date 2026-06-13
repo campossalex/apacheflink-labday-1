@@ -1,3 +1,4 @@
+<!---SECTION: Getting Familiar-->
 Getting Familiar
 ===
 
@@ -16,7 +17,7 @@ Additionally, you have access to two command line interfaces to run some command
 
 > [!NOTE]
 > Please skip the license message you will see in the different components. This lab environment is for training purposes, so licenses are not required.
-
+<!---SECTION: Lab 1: Connecting with Data Sources-->
 Lab 1: Connecting with Data Sources
 ===
 In this first lab, you will learn how to create Dynamic Table to consume data from a Kafka topic and from a CSV file stored in Minio (s3).
