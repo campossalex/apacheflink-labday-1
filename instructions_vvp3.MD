@@ -116,18 +116,18 @@ In the Editor toolbar, click `Run`to execute the SQL statement.  You will also b
 
 Let's create a Fluss table to represent the product reference data.
 
-```
+```sql,line-numbers,wrap
 CREATE CATALOG fluss WITH (
   'type' = 'fluss',
   'bootstrap.servers' = 'coordinator-server-0.coordinator-server-hs.fluss.svc.cluster.local:9124'
   );
 ```
 
-```
+```sql,line-numbers,wrap
 CREATE DATABASE fluss.app;
 ```
 
-```
+```sql,line-numbers,wrap
 CREATE TABLE IF NOT EXISTS fluss.app.product_table (
   product_id STRING,
   category STRING,
