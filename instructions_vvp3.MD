@@ -288,7 +288,7 @@ Go to Ververica tab, then SQL -> SQL Scripts, copy and paste the following SQL s
 
 ```sql,line-numbers,wrap
 CREATE CATALOG dwh WITH (
-  'type' = 'jdbc',
+  'type' = 'postgres',
   'base-url' = 'jdbc:postgresql://host.minikube.internal:5432',
   'default-database' = 'sales_report',
   'username' = 'root',
