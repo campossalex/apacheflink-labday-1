@@ -378,7 +378,13 @@ Once the Postgres client connection is ready, copy and paste the following query
 ```sql,line-numbers,wrap
 SELECT count(*) FROM purchase_report;
 ```
-And press ENTER to execute the SQL. This query will return the number (COUNT function) of records that are currently stored in the table.
+And press ENTER to execute the SQL. This query will return the number of records (COUNT function) currently stored in the table.
+
+```sql,line-numbers,wrap
+SELECT * FROM purchase_report LIMIT 50;
+```
+And press ENTER to execute the SQL. This query will return 50 records.
+
 
 ![Screenshot 2025-08-26 at 10.45.41.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252010.45.41.png)
 
