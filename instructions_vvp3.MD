@@ -440,7 +440,7 @@ If not, you can import the dashboard we built for this use case.
 First, download the JSON template that you will use.
 
 
-Right click on this [link](https://raw.githubusercontent.com/campossalex/ververica-platform-playground/refs/heads/master/grafana-dashboard.json) and save the JSON file in your computer.
+Right click on this [link](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/grafana-dashboard.json) and save the JSON file in your computer.
 
 Click on the Grafana logo (top left-hand side) and select the option *Dashboards*.
 ![Screenshot 2025-08-26 at 21.43.10.png](https://github.com/campossalex/apacheflink-labday-1/blob/e5d6d76f77d9c36cd38af50a0afe101396809773/web/screenshots/Screenshot%25202025-08-26%2520at%252021.43.10.png)
