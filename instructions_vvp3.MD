@@ -370,7 +370,7 @@ Click on the *Overview* tab to observe the Job Graph, including the data sources
 Let's run a simple SELECT to check data is landing in the Postgres table. Run the following command in the CLI tab to start a Postgres database connection. Introduce the password 'admin1':
 
 ```bash,line-numbers,wrap
-psql -p 5432 -d sales_report -U root -W -h kubernetes-vm
+psql -p 5432 -d sales_report -U root -W -h host.minikube.internal
 ```
 
 Once the Postgres client connection is ready, copy and paste the following query:
