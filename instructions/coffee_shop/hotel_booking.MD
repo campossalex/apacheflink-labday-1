@@ -457,7 +457,7 @@ In the top right, click on the `Buid a dashboard` button to load the Grafana tem
 
 First, download the JSON template that you will use.
 
-Right click on this [link](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/grafana-dashboard.json) and save the JSON file in your computer.
+Right click on this [link](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/instructions/coffee_shop/assets/coffee-shop-grafana-dashboard.json) and save the JSON file in your computer.
 
 Click on the `Create Dashboard` button.
 ![23.png](screenshots/23.png)
