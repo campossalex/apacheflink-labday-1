@@ -408,52 +408,7 @@ Click on the *Lineage* tab to observe the Job Graph, including the data sources,
 
 ![18.png](screenshots/19.png)
 
-### Step 6: Confirm data is sinking to Postgres
-Let's run a simple SELECT to check data is landing in the Postgres table. Run the following command in the CLI tab to start a Postgres database connection. Introduce the password 'admin1':
-
-```bash,line-numbers,wrap
-psql -p 5432 -d sales_report -U root -W -h host.minikube.internal
-```
-
-Once the Postgres client connection is ready, copy and paste the following query:
-
-```sql,line-numbers,wrap
-SELECT count(*) FROM purchase_report;
-```
-And press ENTER to execute the SQL. This query will return the number of records (COUNT function) currently stored in the table.
-
-```sql,line-numbers,wrap
-SELECT * FROM purchase_report LIMIT 50;
-```
-And press ENTER to execute the SQL. This query will return 50 records.
-
-
-![Screenshot 2025-08-26 at 10.45.41.png](screenshots/Screenshot%25202025-08-26%2520at%252010.45.41.png)
-
-We've got 1.081 records. You will see a different number of rows for your lab environment. All good, data is sinking to Postgres and your pipeline is running properly!
-
-n` to execute the SQL statement.  At this moment, you will be asked to create a SQL Deployment. Click `OK` to start the deployment process.
-![Screenshot 2025-08-26 at 00.27.36.png](screenshots/Screenshot%25202025-08-26%2520at%252000.27.36.png)
-
-In the Create SQL Deployment, enter 'sales_aggregation_job' for  *Deployment Name* and select 'sql-editor' in *Deployment Target*.
-![Screenshot 2025-08-26 at 00.29.10.png](screenshots/Screenshot%25202025-08-26%2520at%252000.29.10.png)
-
-When you select the 'sql-editor' target to run your job,  you are choosing a Session Cluster. Just confirm by clicking on `OK` button.
-![Screenshot 2025-08-26 at 00.29.25.png](screenshots/Screenshot%25202025-08-26%2520at%252000.29.25.png)
-
-Confirm Parallelism is set '1' for our job and then click on `Create SQL Deployment`. The deployment will start and compute resource will be allocated to run the job:
-![Screenshot 2025-08-26 at 00.30.06.png](screenshots/Screenshot%25202025-08-26%2520at%252000.30.06.png)
-
-### Step 5: Deployment Job Status
-Once the Deployment is triggered, the page will displayed the job status. Wait for a few minutes and the job will change to *Running* status (green):
-![Screenshot 2025-08-26 at 00.30.50.png](screenshots/Screenshot%25202025-08-26%2520at%252000.30.50.png)
-
-Click on the *Events* tab to confirm the latest status is 'Transition to RUNNING completed':  
-![Screenshot 2025-08-26 at 00.32.12.png](screenshots/Screenshot%25202025-08-26%2520at%252000.32.12.png)
-
-Click on the *Overview* tab to observe the Job Graph, including the data sources, the job in the middle and the destination:
-
-![Screenshot 2025-08-26 at 10.44.40.png](screenshots/Screenshot%25202025-08-26%2520at%252010.44.40.png)
+*Click on `Column Level` button to see the job Lienage but at column level. 
 
 ### Step 6: Confirm data is sinking to Postgres
 Let's run a simple SELECT to check data is landing in the Postgres table. Run the following command in the CLI tab to start a Postgres database connection. Introduce the password 'admin1':
@@ -469,111 +424,54 @@ SELECT count(*) FROM purchase_report;
 ```
 And press ENTER to execute the SQL. This query will return the number of records (COUNT function) currently stored in the table.
 
+![20.png](screenshots/20.png)
+
 ```sql,line-numbers,wrap
 SELECT * FROM purchase_report LIMIT 50;
 ```
-And press ENTER to execute the SQL. This query will return 50 records.
-
-
-![Screenshot 2025-08-26 at 10.45.41.png](screenshots/Screenshot%25202025-08-26%2520at%252010.45.41.png)
+And press ENTER to execute the SQL. This query will return 50 records.  
+Type `q` to leave the result page.
 
 We've got 1.081 records. You will see a different number of rows for your lab environment. All good, data is sinking to Postgres and your pipeline is running properly!
 
 <!---SECTION: Lab 4: Build Real-Time Visualizations -->
+
 Lab 4: Build Real-Time Visualizations
 ===
 
-### Step 1: Create a Data Source in Grafana
-Go to Grafana tab, then click on the Grafana logo (top left-hand side) and go to Connections -> Add new connection:
+### Step 1: Check the Data Source in Grafana
 
-![Screenshot 2025-08-26 at 10.55.45.png](screenshots/Screenshot%25202025-08-26%2520at%252010.55.45.png)
+Go to Grafana tab, then click on the Grafana logo (top left-hand side) and go to Connections -> Data Source.  
+The connection to the *sales_report* Postgres databases is already pre-created for you.  
 
-Type 'Postgres' in the search bar to create a Postgres connection , then click on the Postgres logo:
+![21.png](screenshots/21.png)
 
-![Screenshot 2025-08-26 at 10.57.19.png](screenshots/Screenshot%25202025-08-26%2520at%252010.57.19.png)
+Click on the *sales_dwh* connection to check the details.  
+The Host URL and Database name are exactly the same we used to create the Postgres Catalog before.
 
-Once in the new Data source form, enter 'sales_dwh' in the Name field:
+![22.png](screenshots/22.png)
 
-![Screenshot 2025-08-26 at 12.50.31.png](screenshots/Screenshot%25202025-08-26%2520at%252012.50.31.png)
-
-In Connection section, add the following values:
-
-- **Host URL**: host.minikube.internal:5432
-- **Database name**: sales_report
-
-In Authtentication, add the following values:
-
-- **Username**: root
-- **Password**: admin1
-
-![Screenshot 2025-08-26 at 11.00.45.png](screenshots/Screenshot%25202025-08-26%2520at%252011.00.45.png)
-
-- In **TLS/SSL Auth Details**, select Disabled.
--
-- In **Additional Settings**, select Version 12.
-
-![Screenshot 2025-08-26 at 10.59.57.png](screenshots/Screenshot%25202025-08-26%2520at%252010.59.57.png)
-
-Now click on the `Save & Test` button to create the connection.
-
-If process is correct, you will see a confirmation message:
-
-![Screenshot 2025-08-26 at 11.00.56.png](screenshots/Screenshot%25202025-08-26%2520at%252011.00.56.png)
-
-Now you are connect to create your first dashboard. Click on the 'build a dahsboard' link to start to create a new dashboard. If you are familiar with Grafana, you can use your creative to build a dashboard and graphs.
-
-If not, you can import the dashboard we built for this use case.
+In the top right, click on the `Buid a dashboard` button to load the Grafana template for our use case.
 
 ### Step 2: Import a  Grafana template
 
 First, download the JSON template that you will use.
 
-
 Right click on this [link](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/grafana-dashboard.json) and save the JSON file in your computer.
 
-Click on the Grafana logo (top left-hand side) and select the option *Dashboards*.
-![Screenshot 2025-08-26 at 21.43.10.png](screenshots/Screenshot%25202025-08-26%2520at%252021.43.10.png)
-
 Click on the `Create Dashboard` button.
-![Screenshot 2025-08-26 at 21.43.28.png](screenshots/Screenshot%25202025-08-26%2520at%252021.43.28.png)
-
-Then click on the `Import Dashboard`  button to start a new import process.
-![Screenshot 2025-08-26 at 21.44.14.png](screenshots/Screenshot%25202025-08-26%2520at%252021.44.14.png)
+![23.png](screenshots/23.png)
 
 Click on `Upload dashboard JSON file`. A window will open to select the JSON template file downloaded in your computer.
-![Screenshot 2025-08-26 at 21.44.44.png](screenshots/Screenshot%25202025-08-26%2520at%252021.44.44.png)
+![24.png](screenshots/24.png)
 
 Once file is selected, a second page is opened to set the dashboard Name. Just click on the `Import` blue button.
-![Screenshot 2025-08-26 at 21.45.22.png](screenshots/Screenshot%25202025-08-26%2520at%252021.45.22.png)
-
-Dashboard is imported successfuly, but graphs and data is not lodaded. You need now to link the dashboard with the data source created previously.
-Located on the top right-side of the Dashboard panel, click on `Edit` button, then `Settings`.
-![Screenshot 2025-08-26 at 21.46.44.png](screenshots/Screenshot%25202025-08-26%2520at%252021.46.44.png)
-
-Once in the dashboard settings page, click on the *Variables* tab, then `+ New Variable` to create a new variable.
-![Screenshot 2025-08-26 at 22.28.22.png](screenshots/Screenshot%25202025-08-26%2520at%252022.28.22.png)
-
-A new variable form is displayed. Fill it up with the following information:
-
-- **Variable type**: Data source
-- **Name**: datasource (case sensitive)
-- **Data Source type**: Postgres
-
-![Screenshot 2025-08-26 at 21.47.31.png](screenshots/Screenshot%25202025-08-26%2520at%252021.47.31.png)
-
-At the bottom of the form, confirm 'Preview of values' shows the data source name we set before, 'sales_dwh'. That means Grafana will be able to replace the variable placeholder by the datasource id.
-![Screenshot 2025-08-26 at 21.47.53.png](screenshots/Screenshot%25202025-08-26%2520at%252021.47.53.png)
-
-On the top right-side of the form, click on the `Save Dashboard` button to finish the configuration.
-![Untitled 1.jpg](https://github.com/campossalex/apacheflink-labday-1/blob/8217f057a6091c89f7b15d303cb7ce84514f3840/web/screenshots/save_variable_grafana.jpg)
-
-Click on the `Save` blue button to finish the process.
-![Screenshot 2025-08-26 at 21.48.18.png](screenshots/Screenshot%25202025-08-26%2520at%252021.48.18.png)
-
-Once the final step is closed, click on the `<- Back to Dashboard` button, located on the top right-side of the form.
-![Untitled 2.jpg](https://github.com/campossalex/apacheflink-labday-1/blob/8217f057a6091c89f7b15d303cb7ce84514f3840/web/screenshots/variable_grafana_setting.jpg)
+![25.png](screenshots/25.png)
 
 Now the Dashboard will load the data using the connection created to the Postgres database.
-![Screenshot 2025-08-26 at 21.48.58.png](screenshots/Screenshot%25202025-08-26%2520at%252021.48.58.png)
+![26.png](screenshots/26.png)
+
+In the top right menu, you can change the time selection.   
+Also select `5s` in the drop menu in the `Refresh` button to automatically reload the dashboard data.  
 
 Congrats, you made it 👏 Now dashboard is loading data in real-time. The default time range is set to the last 30 minutes. Change the range and observe the new data that will be loaded.
