@@ -27,7 +27,7 @@ Go to Redpanda tab to see the actual data arriving in the Kafka topic.
 
 Navigate to the `Topics` option in the left-hand side menu, and then link on the topic `store.purchases` . This is where the purchases events are arriving in Kafka.  Choose one of the messages, and click on the arrow to expand the event details. You will be able to see the actual JSON data.
 
-![1.png](https://github.com/campossalex/apacheflink-labday-1/blob/101cd07a146271c6124660d975e48ebc9ce9610c/web/screenshots/1.png)
+![1.png](./web/screenshots/1.png)
 
 This confirms purchase events are generated and published to the Kafka topic.
 
