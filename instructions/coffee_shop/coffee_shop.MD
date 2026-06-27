@@ -16,6 +16,11 @@ Additionally, you have access to two command line interfaces to run some command
 > - **Password**: admin1
 
 > [!NOTE]
+> If you prefer, download the Grafana template now:  
+> Right click on this [link](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/instructions/coffee_shop/assets/coffee-shop-grafana-dashboard.json) and save the JSON file in your computer.
+
+
+> [!NOTE]
 > You will need a **Session Cluster** to run SELECT statement.   
 > If the session cluster is not running, you can start manually.  
 > Go to Session Clusters, and then click on the `Start` button.  
