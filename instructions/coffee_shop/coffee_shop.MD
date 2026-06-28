@@ -480,3 +480,200 @@ In the top right menu, you can change the time selection.
 Also select `5s` in the drop menu in the `Refresh` button to automatically reload the dashboard data.  
 
 Congrats, you made it 👏 Now dashboard is loading data in real-time. The default time range is set to the last 30 minutes. Change the range and observe the new data that will be loaded.
+
+<!---SECTION: Bonus Track: AI-Powered Feedback Summary-->
+Bonus Track: AI-Powered Feedback Summary
+===
+
+In this bonus lab, you will extend the coffee shop pipeline with a second data stream: customer feedback. Real-time reviews arrive on the `store.feedback` Kafka topic. Using Flink's native `ML_PREDICT` function, the pipeline filters bad reviews (score < 6), builds an enriched context string for each one, and calls **gpt-4o-mini** to generate a one-sentence summary plus two actionable store improvements — all in a single streaming SQL job.
+
+> [!NOTE]
+> The `dwh` catalog pointing to the `sales_report` Postgres database was already created in **Lab 3**. You do not need to run it again — it is still active in your SQL session.
+
+### Step 1: Check the feedback data in the Kafka topic
+
+Go to the **Redpanda** tab and navigate to `Topics` in the left-hand menu.  
+Click on the topic `store.feedback` to see the live feedback events arriving in Kafka.
+
+Expand one of the messages. You will see a JSON payload with fields like `review_id`, `product_name`, `product_category`, `overall_score`, `product_quality`, `service_speed`, `staff_friendliness`, `cleanliness`, `value_for_money`, `visit_type`, `would_return`, and `review_text`.
+
+This confirms the feedback generator is running and publishing events.
+
+### Step 2: Create a Flink Table to consume feedback events
+
+Go to **Ververica → SQL Editor** and open a new blank draft.
+
+Copy and paste the following DDL and run it:
+
+```sql,line-numbers,wrap
+CREATE TABLE feedback (
+  review_id          STRING,
+  transaction_id     STRING,
+  customer_id        STRING,
+  store_state        STRING,
+  product_name       STRING,
+  product_category   STRING,
+  overall_score      INT,
+  product_quality    INT,
+  service_speed      INT,
+  staff_friendliness INT,
+  cleanliness        INT,
+  value_for_money    INT,
+  review_text        STRING,
+  visit_type         STRING,
+  would_return       BOOLEAN,
+  event_time         STRING,
+  event_ts  AS TO_TIMESTAMP(event_time, 'yyyy-MM-dd HH:mm:ss.SSS'),
+  WATERMARK FOR event_ts AS event_ts - INTERVAL '5' SECOND
+) WITH (
+  'connector'                    = 'kafka',
+  'format'                       = 'json',
+  'json.ignore-parse-errors'     = 'true',
+  'properties.bootstrap.servers' = 'host.minikube.internal:9092',
+  'properties.group.id'          = 'flink-coffee-feedback',
+  'scan.startup.mode'            = 'earliest-offset',
+  'topic'                        = 'store.feedback'
+);
+```
+
+Right-click on the statement and select `Run`. You will see **Query has been executed** in the bottom panel.
+
+### Step 3: Verify bad reviews are flowing
+
+Before deploying the full AI job, let's confirm the filter condition works. Use `Debug` mode to run this SELECT:
+
+```sql,line-numbers,wrap
+SELECT review_id, overall_score, store_state, product_name, review_text
+FROM feedback
+WHERE overall_score < 6;
+```
+
+You should see feedback events with scores 1–5 — these are the ones that will be sent to gpt-4o-mini for analysis.
+
+> [!WARNING]
+> Make sure to stop the SELECT query before continuing. Click the `stop` button in the result grid.
+
+### Step 4: Register the AI model
+
+Now register the OpenAI model that will analyze each bad review. Replace `<token>` with your OpenAI API key.
+
+```sql,line-numbers,wrap
+CREATE MODEL ai_analyze_review
+INPUT  (review_summary STRING)
+OUTPUT (`output`       STRING)
+WITH (
+  'provider'      = 'openai',
+  'task'          = 'classification',
+  'api-key'       = '<token>',
+  'model-version' = 'gpt-4o-mini',
+  'prompt'        = 'You are a coffee shop quality analyst. Given a customer review with scores, respond with exactly 3 lines and no other text. Line 1: one-sentence summary of the main issue. Line 2 starts with "Improvement 1: " followed by a specific actionable improvement for the store. Line 3 starts with "Improvement 2: " followed by a second specific actionable improvement. Be concise, direct and return one single word for each improvement.'
+);
+```
+
+Right-click on the statement and select `Run`. In the bottom panel you will see **Query has been executed**.
+
+> [!NOTE]
+> You can verify the model was registered by running `SHOW MODELS;` in the SQL Editor.
+
+### Step 5: Deploy the feedback summarization job
+
+This is the main pipeline job. It reads every bad review, builds a rich context string for the LLM, calls `ML_PREDICT`, and parses the 3-line response into structured columns — then sinks everything to the `feedback_summary` Postgres table.
+
+Copy and paste the following statement in the SQL Editor. Replace any previous query:
+
+```sql,line-numbers,wrap
+INSERT INTO dwh.sales_report.feedback_summary
+SELECT
+  review_id,
+  customer_id,
+  store_state,
+  product_name,
+  product_category,
+  overall_score,
+  product_quality,
+  service_speed,
+  staff_friendliness,
+  cleanliness,
+  value_for_money,
+  visit_type,
+  would_return,
+  review_text,
+  TRIM(REGEXP_EXTRACT(`output`, '^([^\n]+)',            1)) AS summary,
+  TRIM(REGEXP_EXTRACT(`output`, 'Improvement 1: (.+)', 1)) AS improvement_1,
+  TRIM(REGEXP_EXTRACT(`output`, 'Improvement 2: (.+)', 1)) AS improvement_2,
+  CAST(event_ts AS TIMESTAMP)                               AS processed_at
+FROM ML_PREDICT(
+  INPUT => (
+    SELECT
+      review_id,
+      customer_id,
+      store_state,
+      product_name,
+      product_category,
+      overall_score,
+      product_quality,
+      service_speed,
+      staff_friendliness,
+      cleanliness,
+      value_for_money,
+      visit_type,
+      would_return,
+      review_text,
+      event_ts,
+      CONCAT(
+        'Product: ',           product_name, ' (', product_category, ')',
+        ' | State: ',          store_state,
+        ' | Visit type: ',     visit_type,
+        ' | Overall: ',        CAST(overall_score      AS STRING),
+        ', Product quality: ', CAST(product_quality    AS STRING),
+        ', Service speed: ',   CAST(service_speed      AS STRING),
+        ', Staff: ',           CAST(staff_friendliness AS STRING),
+        ', Cleanliness: ',     CAST(cleanliness        AS STRING),
+        ', Value for money: ', CAST(value_for_money    AS STRING),
+        ' | Would return: ',   CAST(would_return       AS STRING),
+        ' | Review: ',         review_text
+      ) AS review_summary
+    FROM feedback
+    WHERE overall_score < 6
+  ),
+  MODEL => MODEL ai_analyze_review,
+  ARGS  => DESCRIPTOR(review_summary)
+);
+```
+
+In the Editor toolbar, click on `Save As` and name the draft `feedback-summary-job`.
+
+Click `Deploy` → `Confirm` to create the deployment, then go to **Deployments**, find `feedback-summary-job`, and click `Start` → `Start` (Initial Mode).
+
+After a few seconds the job will move to **Running** state.
+
+### Step 6: Confirm data is sinking to Postgres
+
+Run the following command in the CLI tab to open a Postgres connection (password: `admin1`):
+
+```bash,line-numbers,wrap
+psql -p 5432 -d sales_report -U root -W -h host.minikube.internal
+```
+
+Once connected, query the `feedback_summary` table:
+
+```sql,line-numbers,wrap
+SELECT review_id, store_state, overall_score, summary, improvement_1, improvement_2
+FROM feedback_summary
+ORDER BY processed_at DESC
+LIMIT 5;
+```
+
+### Step 7: Import a  Grafana template
+
+First, download the JSON template that you will use.
+
+Right click on this [link](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/instructions/coffee_shop/assets/coffee-shop-grafana-feedback-dashboard.json) and save the JSON file in your computer.
+
+Click on the `Dashboard` -> `New Dashboard` button.
+
+Follow the steps to upload the Grafana json template.
+
+You will see rows with the AI-generated `summary`, `improvement_1`, and `improvement_2` columns populated — one LLM call per bad review, processed in real-time by Flink.
+
+Well done! 🎉 You have built an AI-powered real-time feedback analysis pipeline using Flink SQL `ML_PREDICT` and OpenAI gpt-4o-mini.
