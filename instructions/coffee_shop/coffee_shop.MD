@@ -670,7 +670,8 @@ First, download the JSON template that you will use.
 
 Right click on this [link](https://raw.githubusercontent.com/campossalex/apacheflink-labday-1/refs/heads/master/instructions/coffee_shop/assets/coffee-shop-grafana-feedback-dashboard.json) and save the JSON file in your computer.
 
-Click on the `Dashboard` -> `New Dashboard` button.
+Click on the `Dashboard`, left-hand side menu.  
+Then `New` -> `New Dashboard` button.
 
 Follow the steps to upload the Grafana json template.
 
