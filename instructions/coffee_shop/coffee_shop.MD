@@ -647,24 +647,7 @@ Click `Deploy` → `Confirm` to create the deployment, then go to **Deployments*
 
 After a few seconds the job will move to **Running** state.
 
-### Step 6: Confirm data is sinking to Postgres
-
-Run the following command in the CLI tab to open a Postgres connection (password: `admin1`):
-
-```bash,line-numbers,wrap
-psql -p 5432 -d sales_report -U root -W -h host.minikube.internal
-```
-
-Once connected, query the `feedback_summary` table:
-
-```sql,line-numbers,wrap
-SELECT review_id, store_state, overall_score, summary, improvement_1, improvement_2
-FROM feedback_summary
-ORDER BY processed_at DESC
-LIMIT 5;
-```
-
-### Step 7: Import a  Grafana template
+### Step 6: Import a  Grafana template
 
 First, download the JSON template that you will use.
 
@@ -676,5 +659,7 @@ Then `New` -> `New Dashboard` button.
 Follow the steps to upload the Grafana json template.
 
 You will see rows with the AI-generated `summary`, `improvement_1`, and `improvement_2` columns populated — one LLM call per bad review, processed in real-time by Flink.
+
+![27.png](screenshots/27.png)
 
 Well done! 🎉 You have built an AI-powered real-time feedback analysis pipeline using Flink SQL `ML_PREDICT` and OpenAI gpt-4o-mini.
