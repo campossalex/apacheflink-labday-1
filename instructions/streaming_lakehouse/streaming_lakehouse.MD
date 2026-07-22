@@ -44,7 +44,7 @@ CREATE CATALOG fluss WITH (
 );
 ```
 
-Click `Run`.
+Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 > [!NOTE]
 > The `fluss` catalog will appear in the Catalog panel on the left. All Fluss tables in this lab will live under `fluss.orders.*`.
@@ -69,7 +69,7 @@ CREATE TABLE IF NOT EXISTS fluss.orders.orders_log (
 );
 ```
 
-Click `Run`. You will see `orders_log` appear under `fluss → orders` in the Catalog panel — it's empty for now, since nothing is writing to it yet.
+Right-click on the statement, and then select `Run` to execute the SQL statement. You will see `orders_log` appear under `fluss → orders` in the Catalog panel — it's empty for now, since nothing is writing to it yet.
 
 ### Step 3: Create the Kafka source table
 
@@ -95,7 +95,7 @@ CREATE TABLE IF NOT EXISTS orders_log_kafka (
 );
 ```
 
-Click `Run`. The generator emits `event_time` as `yyyy-MM-dd HH:mm:ss.SSS` (Python's `isoformat(" ", "milliseconds")` — the same approach `coffee_shop`'s Kafka generators use), which is the JSON format's default SQL timestamp shape. Flink parses it straight into `TIMESTAMP(3)` — no intermediate `STRING` column or `TO_TIMESTAMP()` conversion needed.
+Right-click on the statement, and then select `Run` to execute the SQL statement. The generator emits `event_time` as `yyyy-MM-dd HH:mm:ss.SSS` (Python's `isoformat(" ", "milliseconds")` — the same approach `coffee_shop`'s Kafka generators use), which is the JSON format's default SQL timestamp shape. Flink parses it straight into `TIMESTAMP(3)` — no intermediate `STRING` column or `TO_TIMESTAMP()` conversion needed.
 
 > [!NOTE]
 > Open the **Kafka** tab if you'd like to see the raw JSON messages on the `orders_log` topic before they reach Flink.
@@ -169,7 +169,7 @@ CREATE TABLE IF NOT EXISTS fluss.orders.product_lookup (
 );
 ```
 
-Click `Run`.
+Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 ### Step 7: Create the postgres-cdc source table
 
@@ -204,10 +204,7 @@ CREATE TABLE IF NOT EXISTS product_catalog_cdc (
 );
 ```
 
-Click `Run`.
-
-> [!NOTE]
-> This is the same `postgres-cdc` pattern used in `cc_fraud` (Lab 6) for dynamic per-card thresholds. There, a handful of rows changed occasionally; here, 500 rows are snapshotted once at startup and then kept in sync. The mechanism is identical either way.
+Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 ### Step 8: Start the CDC → Fluss sync job
 
@@ -245,7 +242,7 @@ CREATE TABLE IF NOT EXISTS fluss.orders.orders_enriched (
 );
 ```
 
-Click `Run`.
+Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 ### Step 10: Start the enrichment job
 
@@ -281,10 +278,7 @@ Stop the query with the `||` button once you see rows carrying `product_name` an
 
 > [!WARNING]
 > Don't simplify this to a plain `JOIN ... ON` without `FOR SYSTEM_TIME AS OF`. `product_lookup` is a PK (upsert) table, so a regular join against it produces a changelog stream that can include UPDATE/DELETE records — and `orders_enriched` is an append-only Log table, which can't accept them. Removing the temporal-join clause fails with: `Table sink 'fluss.orders.orders_enriched' doesn't support consuming update and delete changes`. The `FOR SYSTEM_TIME AS OF t.proc_time` clause is what makes this a point-in-time lookup (one output row per input row, insert-only) instead of a stateful two-sided join — it's required, not optional boilerplate.
-
-> [!NOTE]
-> This is the same `FOR SYSTEM_TIME AS OF proc_time` pattern used in `fluss_intro` (Lab 3). It's one of the most reusable patterns in Fluss: enrich a high-throughput stream from a PK table with O(1) point-read performance, no external cache required — regardless of whether that PK table was hand-seeded (`fluss_intro`) or CDC-replicated (here).
-
+> 
 <!---SECTION: Lab 3: Enabling the Lakehouse — Tiering Fluss to Iceberg-->
 Lab 3: Enabling the Lakehouse — Tiering Fluss to Iceberg
 ===
@@ -295,7 +289,7 @@ Lab 3: Enabling the Lakehouse — Tiering Fluss to Iceberg
 
 Your lab environment already has a **Fluss Datalake Tiering Service** deployed as a draft — a long-running Flink job that reads Fluss log segments and primary-key snapshots and writes them out as native Iceberg data files and manifests into the Lakekeeper Iceberg REST catalog (backed by S3-compatible object storage).
 
-Go to the **Ververica** tab → **Deployments** → **Drafts**, open `fluss-tiering-service-1`, and click **Start**. Leave it running for the rest of the workshop — it will pick up any table you enable tiering on in the next step.
+Go to the **Ververica** tab → **Deployments**, open `fluss-tiering-service`, and click **Start**. Leave it running for the rest of the workshop — it will pick up any table you enable tiering on in the next step.
 
 > [!NOTE]
 > This is one service, shared across every Fluss table in this environment. You don't deploy a new tiering job per table — you just tell an existing table to opt in.
@@ -311,14 +305,14 @@ SET ('table.datalake.enabled' = 'true', 'table.datalake.freshness' = '30s');
 
 `table.datalake.freshness` controls how often the tiering service checkpoints new data into Iceberg — 30 seconds here, instead of waiting on the default interval, so you don't spend the workshop staring at an empty Iceberg table.
 
-Click `Run`.
+Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 ### Step 13: Verify the tiered data landed in Iceberg
 
-Give the tiering service a minute or two to complete its first cycle, then check that the Iceberg table now exists. Go to the **Trino** tab and run:
+Give the tiering service a minute or two to complete its first cycle, then check that the Iceberg table now exists. Go to the **CloudBeaver** tab and run:
 
 ```sql,line-numbers,wrap
-SHOW TABLES FROM iceberg.warehouse;
+SHOW TABLES FROM warehouse.orders;
 ```
 
 You should see `orders_enriched` listed. You can also open the **Lakekeeper** tab to browse the same catalog visually — the warehouse, its namespace, and the table Fluss just tiered.
@@ -353,10 +347,10 @@ You didn't change a thing, but under the hood something important happened: Flin
 
 ### Step 16: Query the same table from Trino
 
-Switch to the **Trino** tab and run:
+Switch to the **CloudBeaver** tab and run:
 
 ```sql,line-numbers,wrap
-SELECT * FROM iceberg.warehouse.orders_enriched LIMIT 20;
+SELECT * FROM warehouse.orders.orders_enriched LIMIT 20;
 ```
 
 This is the same data — but Trino has no idea Fluss or Flink exist. It's reading plain Iceberg Parquet files and manifests through the Lakekeeper REST catalog. Any tool that speaks the Iceberg REST catalog protocol can read this table.
@@ -371,7 +365,7 @@ SELECT
   category,
   COUNT(*)      AS orders,
   SUM(amount)   AS revenue
-FROM iceberg.warehouse.orders_enriched
+FROM warehouse.orders.orders_enriched
 WHERE status <> 'CANCELLED'
 GROUP BY product_name, category
 ORDER BY revenue DESC;
@@ -385,7 +379,7 @@ Fluss gives you the current and recent past. Iceberg gives you something Fluss a
 
 ```sql,line-numbers,wrap
 SELECT snapshot_id, committed_at
-FROM iceberg.warehouse."orders_enriched$snapshots"
+FROM warehouse.orders."orders_enriched$snapshots"
 ORDER BY committed_at DESC;
 ```
 
@@ -393,7 +387,7 @@ Copy a `snapshot_id` from earlier in the list (an older snapshot, before the mos
 
 ```sql,line-numbers,wrap
 SELECT COUNT(*) AS orders_at_that_point
-FROM iceberg.warehouse.orders_enriched FOR VERSION AS OF 1234567890123456789;
+FROM warehouse.orders.orders_enriched FOR VERSION AS OF 1234567890123456789;
 ```
 
 You'll get the row count as it existed at that exact snapshot — a query Fluss's live tables cannot answer, because Fluss doesn't retain point-in-time snapshots the way Iceberg does.
@@ -410,7 +404,7 @@ Lab 5: Freshness Dashboard in Grafana (Optional)
 This job aggregates `orders_enriched` into 5-minute tumbling windows and writes the results to PostgreSQL, where Grafana can query them.
 
 ```sql,line-numbers,wrap
-CREATE CATALOG lakehouse_pg WITH (
+CREATE CATALOG orders_dwh WITH (
   'type'             = 'postgres',
   'base-url'         = 'jdbc:postgresql://host.minikube.internal:5432',
   'default-database' = 'streaming_lakehouse',
@@ -421,7 +415,7 @@ CREATE CATALOG lakehouse_pg WITH (
 Select just the `CREATE CATALOG` statement and click `Run` — it's a one-off metadata operation, not something you deploy.
 
 ```sql,line-numbers,wrap
-INSERT INTO lakehouse_pg.streaming_lakehouse.revenue_5m
+INSERT INTO orders_dwh.streaming_lakehouse.revenue_5m
 SELECT
   window_start,
   window_end,
@@ -485,7 +479,7 @@ CREATE TABLE IF NOT EXISTS fluss.orders.order_status (
 );
 ```
 
-Click `Run`.
+Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 ### Step 22: Start the state aggregation job
 
@@ -513,7 +507,7 @@ ALTER TABLE fluss.orders.order_status
 SET ('table.datalake.enabled' = 'true', 'table.datalake.freshness' = '30s');
 ```
 
-Click `Run`.
+Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 ### Step 24: Verify order_status landed in Iceberg
 
