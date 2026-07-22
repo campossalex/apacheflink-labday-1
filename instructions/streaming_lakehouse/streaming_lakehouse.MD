@@ -135,49 +135,16 @@ You will see order events appearing in real time, with `status` progressing thro
 > [!NOTE]
 > Unlike Kafka, the Fluss Log table retains data indefinitely. There is no retention window to worry about — this makes it a reliable long-term event store, and it's exactly what makes tiering to Iceberg in Lab 3 safe: nothing is lost in the handoff. Kafka is the ingestion buffer; Fluss is the durable, queryable copy.
 
-<!---SECTION: Lab 2: Order State & Product Enrichment-->
-Lab 2: Order State & Product Enrichment
+> [!NOTE]
+> For demos, don't rely on a random order to have reached `DELIVERED` yet — instead, filter for the fixed demo order the generator always runs through every status first: `WHERE order_id = 'ORD-TEST'`. Its full `PLACED → PAID → SHIPPED → DELIVERED` history is guaranteed to be here from the moment the generator started.
+
+<!---SECTION: Lab 2: Product Enrichment-->
+Lab 2: Product Enrichment
 ===
 
-In this lab you will maintain the current state of every order, replicate a product dimension live from PostgreSQL via CDC, and enrich the order stream with product details via a temporal lookup join — the same building blocks you'll tier into Iceberg in Lab 3.
+In this lab you will replicate a product dimension live from PostgreSQL via CDC, and enrich the order stream with product details via a temporal lookup join — the same building blocks you'll tier into Iceberg in Lab 3.
 
-### Step 6: Create the order_status PK table
-
-A **Primary Key (PK) table** stores exactly one row per key — every write with the same key is an upsert. This gives you a live view of each order's current state without accumulating duplicates.
-
-```sql,line-numbers,wrap
-CREATE TABLE IF NOT EXISTS fluss.orders.order_status (
-  `order_id`    STRING,
-  `customer_id` STRING,
-  `status`      STRING,
-  `amount`      DECIMAL(10, 2),
-  `last_update` TIMESTAMP(3),
-  PRIMARY KEY (`order_id`) NOT ENFORCED
-) WITH (
-  'bucket.num' = '3'
-);
-```
-
-Click `Run`.
-
-### Step 7: Start the state aggregation job
-
-This job reads from the Log table and writes to the PK table. As an order advances through `PLACED` → `DELIVERED`, its single row in this table is silently updated in place.
-
-```sql,line-numbers,wrap
-INSERT INTO fluss.orders.order_status
-SELECT
-  `order_id`,
-  `customer_id`,
-  `status`,
-  `amount`,
-  `event_time` AS `last_update`
-FROM fluss.orders.orders_log;
-```
-
-This is another long-running job, so it needs the same treatment as Step 4: `Save As` a draft named `order-status-sync`, `Deploy` it, then `Start` it from **Deployments**.
-
-### Step 8: Create the product_lookup Fluss PK table
+### Step 6: Create the product_lookup Fluss PK table
 
 PostgreSQL already has a `product_catalog` table, seeded by the environment setup with 500 realistic products (name, category, brand, price, cost, weight, rating, and more). Rather than re-typing that data into Fluss, you'll replicate it live via **Change Data Capture** — any insert or update in PostgreSQL will show up here automatically, with no re-run required.
 
@@ -204,7 +171,7 @@ CREATE TABLE IF NOT EXISTS fluss.orders.product_lookup (
 
 Click `Run`.
 
-### Step 9: Create the postgres-cdc source table
+### Step 7: Create the postgres-cdc source table
 
 The `postgres-cdc` connector snapshots the existing table on startup, then streams every subsequent change. The lab environment already configured PostgreSQL for this (a replication-enabled `cdc_user`, a publication, and a replication slot) — you just need to register the source table in Flink:
 
@@ -242,7 +209,7 @@ Click `Run`.
 > [!NOTE]
 > This is the same `postgres-cdc` pattern used in `cc_fraud` (Lab 6) for dynamic per-card thresholds. There, a handful of rows changed occasionally; here, 500 rows are snapshotted once at startup and then kept in sync. The mechanism is identical either way.
 
-### Step 10: Start the CDC → Fluss sync job
+### Step 8: Start the CDC → Fluss sync job
 
 ```sql,line-numbers,wrap
 INSERT INTO fluss.orders.product_lookup
@@ -257,7 +224,7 @@ SELECT COUNT(*) FROM fluss.orders.product_lookup;
 
 You should see `500`.
 
-### Step 11: Create the orders_enriched Log table
+### Step 9: Create the orders_enriched Log table
 
 This Log table will store every order event permanently, enriched with product metadata. It's the table you'll tier into Iceberg in the next lab — the single source of truth for both real-time and historical analytics.
 
@@ -280,7 +247,7 @@ CREATE TABLE IF NOT EXISTS fluss.orders.orders_enriched (
 
 Click `Run`.
 
-### Step 12: Start the enrichment job
+### Step 10: Start the enrichment job
 
 The `FOR SYSTEM_TIME AS OF t.proc_time` clause instructs Flink to look up each order's product from the `product_lookup` PK table at the moment the order event is processed.
 
@@ -324,7 +291,7 @@ Lab 3: Enabling the Lakehouse — Tiering Fluss to Iceberg
 
 `orders_enriched` now carries the complete, enriched order stream. This is where the workshop's core idea comes in: Fluss can **continuously and automatically tier** any table's data into Apache Iceberg, in the open Parquet + manifest format, without you writing a single ingestion job.
 
-### Step 13: Start the Datalake Tiering Service
+### Step 11: Start the Datalake Tiering Service
 
 Your lab environment already has a **Fluss Datalake Tiering Service** deployed as a draft — a long-running Flink job that reads Fluss log segments and primary-key snapshots and writes them out as native Iceberg data files and manifests into the Lakekeeper Iceberg REST catalog (backed by S3-compatible object storage).
 
@@ -333,7 +300,7 @@ Go to the **Ververica** tab → **Deployments** → **Drafts**, open `fluss-tier
 > [!NOTE]
 > This is one service, shared across every Fluss table in this environment. You don't deploy a new tiering job per table — you just tell an existing table to opt in.
 
-### Step 14: Enable tiering on orders_enriched
+### Step 12: Enable tiering on orders_enriched
 
 Enabling tiering is a single `ALTER TABLE`:
 
@@ -344,29 +311,22 @@ SET ('table.datalake.enabled' = 'true', 'table.datalake.freshness' = '30s');
 
 `table.datalake.freshness` controls how often the tiering service checkpoints new data into Iceberg — 30 seconds here, instead of waiting on the default interval, so you don't spend the workshop staring at an empty Iceberg table.
 
-Click `Run`. Let's also tier the current-state PK table, to see that this works for upsert tables too, not just Log tables:
-
-```sql,line-numbers,wrap
-ALTER TABLE fluss.orders.order_status
-SET ('table.datalake.enabled' = 'true', 'table.datalake.freshness' = '30s');
-```
-
 Click `Run`.
 
-### Step 15: Verify the tiered data landed in Iceberg
+### Step 13: Verify the tiered data landed in Iceberg
 
-Give the tiering service a minute or two to complete its first cycle, then check that Iceberg tables now exist. Go to the **Trino** tab and run:
+Give the tiering service a minute or two to complete its first cycle, then check that the Iceberg table now exists. Go to the **Trino** tab and run:
 
 ```sql,line-numbers,wrap
 SHOW TABLES FROM iceberg.warehouse;
 ```
 
-You should see `orders_enriched` and `order_status` listed. You can also open the **Lakekeeper** tab to browse the same catalog visually — the warehouse, its namespace, and the tables Fluss just tiered.
+You should see `orders_enriched` listed. You can also open the **Lakekeeper** tab to browse the same catalog visually — the warehouse, its namespace, and the table Fluss just tiered.
 
 > [!NOTE]
-> If the tables don't appear yet, the tiering service may still be starting or waiting for its first checkpoint interval — wait another minute and re-run the query.
+> If the table doesn't appear yet, the tiering service may still be starting or waiting for its first checkpoint interval — wait another minute and re-run the query.
 
-### Step 16: Why this matters
+### Step 14: Why this matters
 
 Once a table is tiered, its data exists twice — but for two different purposes, not as a wasteful copy:
 
@@ -381,7 +341,7 @@ Lab 4: Querying the Lakehouse — Real-Time + Historical
 
 Now that `orders_enriched` is tiering into Iceberg, let's see what that actually unlocks: the same table, queried two different ways, for two different purposes.
 
-### Step 17: Re-run the real-time query — this is now a union read
+### Step 15: Re-run the real-time query — this is now a union read
 
 Go back to the **Ververica** SQL Editor and run the exact same query from Lab 2:
 
@@ -391,7 +351,7 @@ SELECT * FROM fluss.orders.orders_enriched;
 
 You didn't change a thing, but under the hood something important happened: Flink now performs a **union read** — it transparently merges the freshest, not-yet-tiered rows still in Fluss with the already-tiered historical rows in Iceberg, and returns them as one seamless result. No query rewrite, no manual UNION, no awareness required from you that tiering is even happening.
 
-### Step 18: Query the same table from Trino
+### Step 16: Query the same table from Trino
 
 Switch to the **Trino** tab and run:
 
@@ -401,7 +361,7 @@ SELECT * FROM iceberg.warehouse.orders_enriched LIMIT 20;
 
 This is the same data — but Trino has no idea Fluss or Flink exist. It's reading plain Iceberg Parquet files and manifests through the Lakekeeper REST catalog. Any tool that speaks the Iceberg REST catalog protocol can read this table.
 
-### Step 19: Run a historical analytics query
+### Step 17: Run a historical analytics query
 
 Because the tiered data lives in columnar Parquet, Trino can scan the *entire* order history cheaply — no need to replay the whole Fluss log through a Flink job to get an answer.
 
@@ -419,7 +379,7 @@ ORDER BY revenue DESC;
 
 You'll see lifetime revenue per product, computed as a single batch scan.
 
-### Step 20 (bonus): Time travel with Iceberg
+### Step 18 (bonus): Time travel with Iceberg
 
 Fluss gives you the current and recent past. Iceberg gives you something Fluss alone doesn't: **time travel** — the ability to query the table exactly as it looked at a previous snapshot. First, list the available snapshots:
 
@@ -445,7 +405,7 @@ Lab 5: Freshness Dashboard in Grafana (Optional)
 > [!NOTE]
 > This lab is a stretch goal. If you're short on time, skip straight to the wrap-up below — Labs 1 through 4 already deliver the complete streaming lakehouse pattern this workshop set out to teach.
 
-### Step 21: Create a windowed revenue job
+### Step 19: Create a windowed revenue job
 
 This job aggregates `orders_enriched` into 5-minute tumbling windows and writes the results to PostgreSQL, where Grafana can query them.
 
@@ -457,7 +417,10 @@ CREATE CATALOG lakehouse_pg WITH (
   'username'         = 'root',
   'password'         = 'admin1'
 );
+```
+Select just the `CREATE CATALOG` statement and click `Run` — it's a one-off metadata operation, not something you deploy.
 
+```sql,line-numbers,wrap
 INSERT INTO lakehouse_pg.streaming_lakehouse.revenue_5m
 SELECT
   window_start,
@@ -471,12 +434,20 @@ FROM TABLE(
 WHERE `status` <> 'CANCELLED'
 GROUP BY window_start, window_end, `category`;
 ```
+For this job, you need to add some libraries. Click on the `Configurations` button on the right-hand side of the SQl Editor, and select the following libraries on the `Additional Dependencies` field:  
+- fluss-fs*.jar
+- fluss-flink*.jar
+- iceberg-flink-runtime*.jar
+- fluss-lake-iceberg*.jar
+- iceberg-aws-bundle*.jar
 
-Select just the `CREATE CATALOG` statement and click `Run` — it's a one-off metadata operation, not something you deploy.
+Click on `Configurations` button again to close the configuration panel.
 
-The `INSERT INTO` statement below it is a long-running job, so it needs the same treatment as Step 4: select it, click `Save As`, and name the draft `revenue-analytics-sink`. Then `Deploy` it, and `Start` it from **Deployments**.
+![1.png](screenshots/1.png)
 
-### Step 22: Import and explore the dashboard
+The `INSERT INTO` statement above it is a long-running job, so it needs the same treatment as Step 4: select it, click `Save As`, and name the draft `revenue-analytics-sink`. Then `Deploy` it, and `Start` it from **Deployments**.
+
+### Step 20: Import and explore the dashboard
 
 Go to the **Grafana** tab → **Dashboards → Import**, upload `grafana/streaming_lakehouse_dashboard.json` from the lab repository, and select `lakehouse_dwh` as the data source when prompted.
 
@@ -490,3 +461,66 @@ The dashboard shows:
 Set the time range to **Last 30 minutes** to focus on the most recent activity.
 
 Congrats, you made it! You have built a complete streaming lakehouse — from a Kafka-fed generator, through Log and PK table storage in Fluss, to CDC-driven enrichment, transparent tiering into Apache Iceberg, and real-time *and* historical queries against the very same table.
+
+<!---SECTION: Bonus Track: Tiering an Upsert (PK) Table-->
+Bonus Track: Tiering an Upsert (PK) Table
+===
+
+Everything you tiered so far (`orders_enriched`) is a Log table — append-only, one row per event, forever. Fluss's datalake tiering works just as well on **primary-key (upsert) tables**, where each write overwrites the previous value for that key instead of appending. This bonus track builds a live order-status table, tiers it, and shows the exact same `ALTER TABLE` mechanic applying to a completely different table shape.
+
+### Step 21: Create the order_status PK table
+
+A **Primary Key (PK) table** stores exactly one row per key — every write with the same key is an upsert. This gives you a live view of each order's current state without accumulating duplicates.
+
+```sql,line-numbers,wrap
+CREATE TABLE IF NOT EXISTS fluss.orders.order_status (
+  `order_id`    STRING,
+  `customer_id` STRING,
+  `status`      STRING,
+  `amount`      DECIMAL(10, 2),
+  `last_update` TIMESTAMP(3),
+  PRIMARY KEY (`order_id`) NOT ENFORCED
+) WITH (
+  'bucket.num' = '3'
+);
+```
+
+Click `Run`.
+
+### Step 22: Start the state aggregation job
+
+This job reads from the Log table and writes to the PK table. As an order advances through `PLACED` → `DELIVERED`, its single row in this table is silently updated in place.
+
+```sql,line-numbers,wrap
+INSERT INTO fluss.orders.order_status
+SELECT
+  `order_id`,
+  `customer_id`,
+  `status`,
+  `amount`,
+  `event_time` AS `last_update`
+FROM fluss.orders.orders_log;
+```
+
+This is another long-running job, so it needs the same treatment as Step 4: `Save As` a draft named `order-status-sync`, `Deploy` it, then `Start` it from **Deployments**.
+
+### Step 23: Enable tiering on order_status
+
+The same single `ALTER TABLE` you ran in Lab 3 works here too — no special-casing for upsert tables:
+
+```sql,line-numbers,wrap
+ALTER TABLE fluss.orders.order_status
+SET ('table.datalake.enabled' = 'true', 'table.datalake.freshness' = '30s');
+```
+
+Click `Run`.
+
+### Step 24: Verify order_status landed in Iceberg
+
+Give the tiering service a minute or two, then check from the **Trino** tab:
+
+```sql,line-numbers,wrap
+SELECT * FROM iceberg.warehouse.order_status LIMIT 20;
+```
+
+You're looking at the *current* state of every order — but served entirely out of Iceberg, independent of Fluss. Upsert semantics don't survive the trip into Iceberg (each tiered snapshot is append-only under the hood), but the latest-value-per-key view you get by querying the table is consistent with what Fluss shows live. This is the same "one pipeline, two storage tiers" pattern from Lab 3, just proven against a PK table instead of a Log table.
