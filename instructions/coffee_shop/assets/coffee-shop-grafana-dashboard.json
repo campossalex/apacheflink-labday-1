@@ -24,7 +24,8 @@
   "panels": [
     {
       "datasource": {
-        "type":  "sales_dwh", "uid": "${datasource}"
+        "type": "sales_dwh",
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -79,7 +80,8 @@
       "targets": [
         {
           "datasource": {
-            "type":  "sales_dwh", "uid": "${datasource}"
+            "type": "sales_dwh",
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "format": "table",
@@ -119,7 +121,8 @@
     },
     {
       "datasource": {
-        "type":  "sales_dwh", "uid": "${datasource}"
+        "type": "sales_dwh",
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -173,7 +176,8 @@
       "targets": [
         {
           "datasource": {
-            "type":  "sales_dwh", "uid": "${datasource}"
+            "type": "sales_dwh",
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "format": "table",
@@ -213,7 +217,8 @@
     },
     {
       "datasource": {
-        "type":  "sales_dwh", "uid": "${datasource}"
+        "type": "sales_dwh",
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -267,7 +272,8 @@
       "targets": [
         {
           "datasource": {
-            "type":  "sales_dwh", "uid": "${datasource}"
+            "type": "sales_dwh",
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "format": "table",
@@ -307,7 +313,8 @@
     },
     {
       "datasource": {
-        "type":  "sales_dwh", "uid": "${datasource}"
+        "type": "sales_dwh",
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -361,7 +368,8 @@
       "targets": [
         {
           "datasource": {
-            "type":  "sales_dwh", "uid": "${datasource}"
+            "type": "sales_dwh",
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "format": "table",
@@ -409,7 +417,8 @@
     },
     {
       "datasource": {
-        "type":  "sales_dwh", "uid": "${datasource}"
+        "type": "sales_dwh",
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -491,7 +500,8 @@
       "targets": [
         {
           "datasource": {
-            "type":  "sales_dwh", "uid": "${datasource}"
+            "type": "sales_dwh",
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "format": "table",
@@ -573,7 +583,8 @@
     },
     {
       "datasource": {
-        "type":  "sales_dwh", "uid": "${datasource}"
+        "type": "sales_dwh",
+        "uid": "${datasource}"
       },
       "fieldConfig": {
         "defaults": {
@@ -657,7 +668,8 @@
       "targets": [
         {
           "datasource": {
-            "type":  "sales_dwh", "uid": "${datasource}"
+            "type": "sales_dwh",
+            "uid": "${datasource}"
           },
           "editorMode": "code",
           "format": "table",
@@ -709,7 +721,21 @@
   "schemaVersion": 41,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "postgres",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
     "from": "now-30m",

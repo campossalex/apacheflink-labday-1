@@ -48,20 +48,20 @@ install_minio() {
     --namespace "vvp" \
     upgrade --install "minio" "minio" \
     --repo https://charts.helm.sh/stable \
-    --values /root/ververica-platform-playground/values-minio.yaml
+    --values /root/ververica-platform-playground/setup/helm/values-minio.yaml
 }
 
 install_grafana() {
   helm_install grafana grafana "$VVP_NAMESPACE" \
     --repo https://grafana.github.io/helm-charts \
-    --values /root/ververica-platform-playground/values-grafana.yaml
+    --values /root/ververica-platform-playground/setup/helm/values-grafana.yaml
 }
 
 helm_install_vvp() {
   if [ -n "$VVP_CHART" ];  then
     helm_install vvp "$VVP_CHART" "$VVP_NAMESPACE" \
       --version "$VVP_CHART_VERSION" \
-      --values /root/ververica-platform-playground/values-vvp.yaml \
+      --values /root/ververica-platform-playground/setup/helm/values-vvp.yaml \
       --set rbac.additionalNamespaces="{$JOBS_NAMESPACE}" \
       --set vvp.blobStorage.s3.endpoint="http://minio.$VVP_NAMESPACE.svc:9000" \
       "$@"
@@ -69,7 +69,7 @@ helm_install_vvp() {
     helm_install vvp ververica-platform "$VVP_NAMESPACE" \
       --repo https://charts.ververica.com \
       --version "$VVP_CHART_VERSION" \
-      --values /root/ververica-platform-playground/values-vvp.yaml \
+      --values /root/ververica-platform-playground/setup/helm/values-vvp.yaml \
       --set rbac.additionalNamespaces="{$JOBS_NAMESPACE}" \
       --set vvp.blobStorage.s3.endpoint="http://minio.$VVP_NAMESPACE.svc:9000" \
       "$@"
@@ -98,13 +98,22 @@ install_vvp() {
   install_logging="$3"
   helm_additional_parameters=
   
-  # try installation once (aborts and displays license)
-  helm_install_vvp $helm_additional_parameters
+  if [ "$edition" == "enterprise" ]; then
+    echo "Installing Enterprise..."
+    helm_install_vvp \
+      --values /root/ververica-platform-playground/setup/helm/values-license.yaml \
+      $helm_additional_parameters
+  else
+    # try installation once (aborts and displays license)
+    helm_install_vvp $helm_additional_parameters
 
-  echo "Installing..."
-  helm_install_vvp \
-    --set acceptCommunityEditionLicense=true \
-     $helm_additional_parameters
+    echo "Installing Community..."
+    helm_install_vvp \
+      --set acceptCommunityEditionLicense=true \
+      $helm_additional_parameters
+
+  fi
+
 }
 
 main() {
@@ -178,6 +187,152 @@ main() {
   curl -i -X POST localhost:8080/api/v1/namespaces/default/deployment-targets -H "Content-Type: application/yaml" --data-binary "@/root/ververica-platform-playground/vvp-resources/deployment_target.yaml"
   curl -i -X POST localhost:8080/api/v1/namespaces/default/sessionclusters -H "Content-Type: application/yaml" --data-binary "@/root/ververica-platform-playground/vvp-resources/sessioncluster.yaml"
   curl -i -X POST 'localhost:8080/namespaces/v1/namespaces/default:setPreviewSessionCluster' -H 'accept: application/json' -H 'Content-Type: application/json' -d '{"previewSessionClusterName": "sql-editor"}'
+
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"CREATE TABLE purchase_stream (
+  transaction_time TIMESTAMP(3),
+  transaction_id STRING,
+  product_id STRING,
+  price FLOAT,
+  quantity INT,
+  state STRING,
+  is_member BOOLEAN,
+  member_discount FLOAT,
+  add_supplements BOOLEAN,
+  supplement_price FLOAT,
+  total_purchase FLOAT,
+  WATERMARK FOR transaction_time AS transaction_time - INTERVAL '\''1'\'' SECOND
+) WITH (
+    '\''connector'\''='\''kafka'\'',
+    '\''properties.bootstrap.servers'\''='\''host.minikube.internal:9092'\'',
+    '\''format'\''='\''json'\'',
+    '\''topic'\'' = '\''store.purchases'\'',
+    '\''properties.group.id'\'' = '\''flink-jobs'\'',
+    '\''scan.startup.mode'\'' = '\''earliest-offset'\'',
+    '\''properties.auto.offset.reset'\'' = '\''earliest'\''
+);
+
+CREATE TABLE master_product (
+  product_id string,
+  category string,
+  item string,
+  size string,
+  cogs string,
+  price string,
+  inventory_level string,
+  contains_fruit string,
+  contains_veggies string,
+  contains_nuts string,
+  contains_caffeine string,
+  PRIMARY KEY (product_id) NOT ENFORCED
+) WITH (
+  '\''connector'\'' = '\''filesystem'\'',
+  '\''path'\'' = '\''s3://data/product'\'',
+  '\''format'\'' = '\''csv'\''
+);","displayName":"Table DDL","name":"namespaces/default/sqlscripts/table-ddl"}'
+
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"
+## Query 1
+
+SELECT
+   transaction_time,
+   item,
+   category,
+   quantity,
+   total_purchase
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+
+## Query 2
+SELECT
+   item,
+   SUM(total_purchase) AS sum_total_purchase,
+   TUMBLE_START(transaction_time, INTERVAL '\''10'\'' SECONDS) AS purchase_window
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+GROUP BY
+  TUMBLE(transaction_time, INTERVAL '\''10'\'' SECONDS),
+  item
+
+## Query 3
+SELECT
+   item,
+   SUM(total_purchase) AS sum_total_purchase,
+   HOP_START(transaction_time, INTERVAL '\''10'\'' SECONDS, INTERVAL '\''60'\'' SECONDS) AS purchase_window
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+WHERE category = '\''Superfoods Smoothies'\''
+GROUP BY
+  HOP(transaction_time, INTERVAL '\''10'\'' SECONDS, INTERVAL '\''60'\'' SECONDS),
+  item
+
+## Query 4
+SELECT
+   item,
+   category,
+   state,
+   COUNT(*) AS count_transactions,
+   SUM(quantity) AS sum_quantity,
+   SUM(purchase_stream.price) AS sum_price,
+   SUM(member_discount) AS sum_member_discount,
+   SUM(supplement_price) AS sum_supplement_price,
+   SUM(total_purchase) AS sum_total_purchase,
+   AVG(total_purchase) AS avg_total_purchase,
+   TUMBLE_START(transaction_time, INTERVAL '\''30'\'' SECONDS) AS purchase_window
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+GROUP BY
+  TUMBLE(transaction_time, INTERVAL '\''30'\'' SECONDS),
+  item,
+	category,
+	state
+
+","displayName":"Test Queries","name":"namespaces/default/sqlscripts/test-queries"}'
+
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"CREATE CATALOG dwh WITH (
+  '\''type'\'' = '\''jdbc'\'',
+  '\''base-url'\'' = '\''jdbc:postgresql://host.minikube.internal:5432'\'',
+  '\''default-database'\'' = '\''sales_report'\'',
+  '\''username'\'' = '\''root'\'',
+  '\''password'\'' = '\''admin1'\''
+)","displayName":"Create Catalog","name":"namespaces/default/sqlscripts/create-catalog"}'
+
+
+curl -X POST "localhost:8080/sql/v1beta1/namespaces/default/sqlscripts" \
+  -H "Content-Type: application/json" \
+  -d '{"script":"INSERT INTO dwh.sales_report.purchase_report
+SELECT
+   item,
+   category,
+   state,
+   TUMBLE_START(transaction_time, INTERVAL '\''30'\'' SECONDS),
+   COUNT(quantity) ,
+   SUM(quantity) AS sum_quantity,
+   SUM(purchase_stream.price),
+   SUM(member_discount),
+   SUM(supplement_price),
+   SUM(total_purchase),
+   AVG(total_purchase)
+FROM purchase_stream
+JOIN master_product
+ON purchase_stream.product_id = master_product.product_id
+GROUP BY
+  TUMBLE(transaction_time, INTERVAL '\''30'\'' SECONDS),
+  item, category, state",
+"displayName":"Create Job","name":"namespaces/default/sqlscripts/create-job"}'
+
 
 }
 
