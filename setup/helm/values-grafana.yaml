@@ -6,17 +6,6 @@ grafana.ini:
     enabled: true
     org_role: Admin
 
-# Configure the Prometheus datasource
-datasources:
-  datasources.yaml:
-    apiVersion: 1
-    datasources:
-    - name: Prometheus
-      type: prometheus
-      access: proxy
-      isDefault: true
-      url: http://vvp-metrics-prometheus.vvp.svc
-
 # Configure Grafana to load dashboards from the given directory
 dashboardProviders:
   dashboardproviders.yaml:

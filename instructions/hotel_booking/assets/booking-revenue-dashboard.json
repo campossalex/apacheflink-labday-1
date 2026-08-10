@@ -1,0 +1,797 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "liveNow": true,
+  "panels": [
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "yellow", "value": 50000 },
+              { "color": "red", "value": 200000 }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/^Total Revenue$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "value",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(revenue_eur) AS \"Total Revenue\" FROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Total Revenue (EUR)",
+      "transparent": true,
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "dark-yellow", "mode": "fixed" },
+          "decimals": 0,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 6, "y": 0 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/^Total Bookings$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(total_bookings) AS \"Total Bookings\" FROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Total Bookings",
+      "transparent": true,
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "light-blue", "mode": "fixed" },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 12, "y": 0 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/^Avg Booking Value$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT AVG(avg_booking_value) AS \"Avg Booking Value\" FROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Avg Booking Value (EUR)",
+      "transparent": true,
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "fixedColor": "orange", "mode": "fixed" },
+          "decimals": 2,
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 5, "w": 6, "x": 18, "y": 0 },
+      "id": 4,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "orientation": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "/^Genius Discounts$/",
+          "values": false
+        },
+        "showPercentChange": false,
+        "textMode": "auto",
+        "wideLayout": true
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT SUM(total_genius_discounts) AS \"Genius Discounts\" FROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Total Genius Discounts (EUR)",
+      "transparent": true,
+      "type": "stat"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 5 },
+      "id": 5,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "colorByField": "city",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "desc" },
+        "xField": "city",
+        "xTickLabelRotation": -30,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT city, SUM(revenue_eur) AS \"Revenue\"\nFROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()\nGROUP BY city\nORDER BY \"Revenue\" DESC",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Revenue by City",
+      "transparent": true,
+      "type": "barchart"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 5 },
+      "id": 6,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.9,
+        "colorByField": "city",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "never",
+        "stacking": "normal",
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" },
+        "xField": "property_type",
+        "xTickLabelRotation": -30,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT property_type, city, SUM(revenue_eur) AS \"Revenue\"\nFROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()\nGROUP BY property_type, city\nORDER BY property_type",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Revenue by Property Type & City",
+      "transformations": [
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "city",
+            "emptyValue": "zero",
+            "rowField": "property_type",
+            "valueField": "Revenue"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "barchart"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 80,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 0, "y": 14 },
+      "id": 7,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.9,
+        "colorByField": "channel",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "never",
+        "stacking": "normal",
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "none" },
+        "xField": "channel",
+        "xTickLabelRotation": -30,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT channel, city, SUM(total_bookings) AS \"Bookings\"\nFROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()\nGROUP BY channel, city\nORDER BY channel",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Bookings by Channel & City",
+      "transformations": [
+        {
+          "id": "groupingToMatrix",
+          "options": {
+            "columnField": "city",
+            "emptyValue": "zero",
+            "rowField": "channel",
+            "valueField": "Bookings"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "barchart"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "palette-classic" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "lineWidth": 1,
+            "scaleDistribution": { "type": "linear" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 12, "x": 12, "y": 14 },
+      "id": 8,
+      "options": {
+        "barRadius": 0,
+        "barWidth": 0.7,
+        "colorByField": "traveler_type",
+        "fullHighlight": false,
+        "groupWidth": 0.7,
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "orientation": "vertical",
+        "showValue": "never",
+        "stacking": "none",
+        "tooltip": { "hideZeros": false, "mode": "single", "sort": "desc" },
+        "xField": "traveler_type",
+        "xTickLabelRotation": 0,
+        "xTickLabelSpacing": 0
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT traveler_type, SUM(total_bookings) AS \"Bookings\", ROUND(AVG(avg_nights), 1) AS \"Avg Nights\"\nFROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()\nGROUP BY traveler_type\nORDER BY \"Bookings\" DESC",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Bookings by Traveler Type",
+      "transparent": true,
+      "type": "barchart"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-RdYlGr" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "currencyEUR"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 23 },
+      "id": 9,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezone": ["utc"],
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT window_start, city, SUM(revenue_eur) AS \"Revenue\"\nFROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()\nGROUP BY window_start, city\nORDER BY window_start",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Revenue over Time by City",
+      "transparent": true,
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "continuous-BlYlRd" },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 20,
+            "gradientMode": "none",
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false },
+            "insertNulls": false,
+            "lineInterpolation": "linear",
+            "lineWidth": 2,
+            "pointSize": 4,
+            "scaleDistribution": { "type": "linear" },
+            "showPoints": "auto",
+            "spanNulls": false,
+            "stacking": { "group": "A", "mode": "none" },
+            "thresholdsStyle": { "mode": "off" }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 9, "w": 24, "x": 0, "y": 32 },
+      "id": 10,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "timezone": ["utc"],
+        "tooltip": { "hideZeros": false, "mode": "multi", "sort": "desc" }
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT window_start,\n  SUM(early_bird_count) AS \"Early Bird\",\n  SUM(last_minute_count) AS \"Last Minute\",\n  SUM(total_bookings) - SUM(early_bird_count) - SUM(last_minute_count) AS \"Standard\"\nFROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()\nGROUP BY window_start\nORDER BY window_start",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "Booking Lead Time over Time (Early Bird / Standard / Last Minute)",
+      "transparent": true,
+      "type": "timeseries"
+    },
+
+    {
+      "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+      "fieldConfig": {
+        "defaults": {
+          "color": { "mode": "thresholds" },
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "inspect": false
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              { "color": "green", "value": 0 },
+              { "color": "red", "value": 80 }
+            ]
+          }
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "revenue_eur" },
+            "properties": [
+              { "id": "unit", "value": "currencyEUR" },
+              { "id": "decimals", "value": 2 },
+              { "id": "displayName", "value": "Revenue (EUR)" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "avg_booking_value" },
+            "properties": [
+              { "id": "unit", "value": "currencyEUR" },
+              { "id": "decimals", "value": 2 },
+              { "id": "displayName", "value": "Avg Booking Value" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "total_genius_discounts" },
+            "properties": [
+              { "id": "unit", "value": "currencyEUR" },
+              { "id": "decimals", "value": 2 },
+              { "id": "displayName", "value": "Genius Discounts" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "total_bookings" },
+            "properties": [
+              { "id": "displayName", "value": "Bookings" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "avg_nights" },
+            "properties": [
+              { "id": "decimals", "value": 1 },
+              { "id": "displayName", "value": "Avg Nights" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "city" },
+            "properties": [
+              { "id": "displayName", "value": "City" }
+            ]
+          },
+          {
+            "matcher": { "id": "byName", "options": "property_type" },
+            "properties": [
+              { "id": "displayName", "value": "Property Type" }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 41 },
+      "id": 11,
+      "options": {
+        "cellHeight": "sm",
+        "footer": {
+          "countRows": false,
+          "enablePagination": false,
+          "fields": "",
+          "reducer": ["sum"],
+          "show": false
+        },
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "Revenue (EUR)" }]
+      },
+      "pluginVersion": "12.1.0",
+      "targets": [
+        {
+          "datasource": { "type": "booking_dwh", "uid": "${datasource}" },
+          "editorMode": "code",
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT city, property_type,\n  SUM(total_bookings)        AS total_bookings,\n  SUM(revenue_eur)           AS revenue_eur,\n  AVG(avg_booking_value)     AS avg_booking_value,\n  AVG(avg_nights)            AS avg_nights,\n  SUM(total_genius_discounts) AS total_genius_discounts,\n  SUM(early_bird_count)      AS early_bird_count,\n  SUM(last_minute_count)     AS last_minute_count\nFROM city_revenue_report\nWHERE window_start BETWEEN $__timeFrom() AND $__timeTo()\nGROUP BY city, property_type\nORDER BY revenue_eur DESC",
+          "refId": "A",
+          "table": "city_revenue_report"
+        }
+      ],
+      "title": "City & Property Type Breakdown",
+      "transparent": true,
+      "type": "table"
+    }
+
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": ["booking", "revenue", "real-time"],
+  "templating": {
+    "list": [
+      {
+        "current": {},
+        "hide": 0,
+        "includeAll": false,
+        "label": "Data Source",
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "postgres",
+        "refresh": 1,
+        "regex": "",
+        "type": "datasource"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "utc",
+  "title": "Booking.com — Revenue Report",
+  "uid": "booking-revenue-report-v1",
+  "version": 1
+}

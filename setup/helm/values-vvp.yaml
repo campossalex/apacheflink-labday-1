@@ -25,7 +25,7 @@ vvp:
               memory: 1G
           flinkConfiguration:
             state.backend: filesystem
-            taskmanager.memory.managed.fraction: 0.0 # no managed memory needed for filesystem statebackend
+            taskmanager.memory.managed.fraction: 0.1 # no managed memory needed for filesystem statebackend
             high-availability: none
             s3.access-key: 'admin'
             s3.secret-key: 'password'

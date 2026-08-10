@@ -3,7 +3,7 @@ import configparser
 
 def get_configs():
     config = configparser.ConfigParser()
-    config.read("/root/ververica-platform-playground/salesgen/configuration/configuration.ini")
+    config.read("configuration/configuration.ini")
 
     bootstrap_servers = config["KAFKA"]["bootstrap_servers"]
 
