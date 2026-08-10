@@ -338,23 +338,50 @@ FROM betting_jdbc.betting.risk_score_log;
 
 Expect an average in the low hundreds of milliseconds. That figure is the whole argument for this architecture: from a bet being placed to a fully-featured risk decision, faster than a page load.
 
-<!---SECTION: Lab 4: Trigger the Anomalies-->
-Lab 4: Trigger the Anomalies
+<!---SECTION: Lab 4: Trigger the Anomalies and Watch the Features Move-->
+Lab 4: Trigger the Anomalies and Watch the Features Move
 ===
 
-Everything so far has run on ordinary traffic. Now inject the behaviours the rules were written to catch, and watch the feature store and risk level respond in real time.
+Everything so far has run on ordinary traffic. Now inject the behaviours the rules were written to catch — and watch the feature vector change, live, as the events land.
 
-### Step 13: Fire the bot
+This lab uses two tabs together: the **Fraud Generator** injects the behaviour, and the **Scoring Service** shows you the effect on the feature store as it happens. Open both before you start.
 
-Go to the **Fraud Generator** tab. You'll see six cards, one per anomaly archetype. Each drives a dedicated player so you can follow a single subject through the pipeline.
+### Step 13: Set up the two tabs
 
-Click **Bot / Velocity**. This makes player `BOT_001` place 25 bets in about two minutes, all at identical odds of 1.95 — machine-like behaviour no human produces.
+Open the **Scoring Service** tab first. This is a small Python service that reads the feature store directly with the `pyfluss` client — an O(1) primary-key lookup, no Flink involved. Its UI has three parts you'll use:
 
-While it runs, keep an eye on the live event log in the panel below the cards.
+- **Quick select** — one chip per outlier player (`BOT_001` "Bot velocity", `GEO_001` "Geo mismatch", `STREAK_001` "Loss streak", `LIVE_001` "High live ratio", `SHARP_001` "Sharp odds", `LIMIT_001` "Stake limit"). Clicking a chip loads that player.
+- **Score a Player** (left card) — the live view. It has an **Auto-refresh every 2 s** toggle, on by default, which re-scores the selected player every two seconds. This is what lets you watch a feature move rather than polling by hand.
+- **Kafka Stream** (right card) — every bet flowing through the platform, scored as it arrives.
 
-### Step 14: Watch the features move
+Click the `BOT_001` chip now, while the bot is still idle. You should see a `NORMAL` badge, "no triggers", and a feature table where `bets_last_10min` is `0`. That is your baseline.
 
-In the SQL Editor, run this repeatedly while the bot is firing:
+Now open the **Fraud Generator** tab in a second browser tab, so you can switch between the two without losing the auto-refresh.
+
+### Step 14: Fire the bot and watch the vector change
+
+In the **Fraud Generator**, click **Bot / Velocity**. Player `BOT_001` starts placing 25 bets over about two minutes, all at identical odds of 1.95 — machine-like behaviour no human produces.
+
+Switch straight back to the **Scoring Service** tab and watch the left card refresh itself every two seconds. In sequence, you will see:
+
+1. **`bets_last_10min` climbing** — 0, then 1, 3, 6… The 10-minute window slides every 10 seconds, so the number is never more than a few seconds behind the bets actually being placed.
+2. **The badge flipping** from `NORMAL` to `FRAUD_HIGH`, the moment the count crosses 8.
+3. **A `BOT_VELOCITY` chip appearing** in the reasons row.
+4. **`bets_last_10min` highlighted** in the feature table — the UI marks which features actually triggered, so you can see the causal link rather than infer it.
+5. **`response_time_ms` staying in single digits** the whole time. The store is being written to continuously and read at the same moment, without either side blocking the other.
+
+Watch the **Kafka Stream** panel on the right too — `BOT_001` bets appear there scored `FRAUD_HIGH`, mixed in among the `NORMAL` traffic from the rest of the platform.
+
+This is the whole point of the workshop in one screen: nothing was retrained, no threshold was touched, no batch job ran. The feature simply became true, and the verdict followed within seconds.
+
+> [!NOTE]
+> Leave the bot to finish, then keep watching. After about ten minutes of no further bets from
+> `BOT_001`, `bets_last_10min` drops back to `0` and the badge returns to `NORMAL` — that is the
+> zero-fill pattern from Step 5 actively resetting a stale feature, not the row simply expiring.
+
+### Step 15: Confirm the same values in Flink and PostgreSQL
+
+The Scoring Service reads Fluss over the Python client. Check that Flink sees exactly the same row. In the **Ververica** SQL Editor:
 
 ```sql,line-numbers,wrap
 SELECT player_id, bets_last_10min, total_stake_30min, avg_odds_15min, last_updated_at
@@ -362,9 +389,9 @@ FROM fluss.betting.player_feature_store
 WHERE player_id = 'BOT_001';
 ```
 
-`bets_last_10min` climbs from 0 past the threshold of 8 within seconds of the bets landing — the window slides every 10 seconds, so the feature is never more than a few seconds behind reality.
+Compare `bets_last_10min` against what the Scoring Service just showed you. **They match** — same row, same store, two different readers.
 
-Then check the verdict:
+Then look at the audit trail your PostgreSQL sink job has been writing:
 
 ```sql,line-numbers,wrap
 SELECT bet_id, risk_level, risk_reasons, enrichment_lag_ms, score_time
@@ -374,19 +401,21 @@ ORDER BY score_time DESC
 LIMIT 10;
 ```
 
-Once the velocity feature crosses 8, every subsequent bet from `BOT_001` is scored `FRAUD_HIGH` with reason `BOT_VELOCITY`. Nothing was retrained and no threshold was touched — the feature simply became true.
+Every bet after the threshold crossing is `FRAUD_HIGH` / `BOT_VELOCITY`, each with its own measured `enrichment_lag_ms`.
 
-### Step 15: Fire the rest
+### Step 16: Fire the rest
 
-Trigger the remaining five archetypes and follow each one the same way, substituting its player ID in the queries above.
+Work through the remaining five archetypes the same way: click the matching **Quick select** chip in the Scoring Service, leave auto-refresh running, then fire the card in the Fraud Generator and watch which feature moves.
 
-| Card | Player | What it simulates | Expected verdict |
-|---|---|---|---|
-| **Geo Mismatch** | `GEO_001` | Login from GB, then Brazil, inside the same 15-minute window | `FRAUD_HIGH` / `GEO_MISMATCH` |
-| **Loss Streak** | `STREAK_001` | 8 consecutive losses, rotating across all 8 sports | `RG_ALERT` / `LOSS_STREAK` + `CHASING_LOSSES` |
-| **Live Bet Addict** | `LIVE_001` | 10 of 12 bets placed in-play, one every 8–10 seconds | `RG_ALERT` / `HIGH_LIVE_RATIO` |
-| **Sharp Bettor** | `SHARP_001` | 8 bets at odds below 2, seconds apart | `SHARP_BETTOR` / `SHARP_ODDS_PATTERN` |
-| **Stake Limit Breach** | `LIMIT_001` | £7,000 wagered in a single session | `STAKE_LIMIT` / `DAILY_LIMIT` |
+| Fraud Generator card | Quick-select chip | What it simulates | Feature that moves | Expected verdict |
+|---|---|---|---|---|
+| **Geo Mismatch** | `GEO_001` | Login from GB, then Brazil, inside the same 15-minute window | `geo_mismatches_15min` | `FRAUD_HIGH` / `GEO_MISMATCH` |
+| **Loss Streak** | `STREAK_001` | 8 consecutive losses, rotating across all 8 sports | `current_loss_streak`, `distinct_sports_30min` | `RG_ALERT` / `LOSS_STREAK` + `CHASING_LOSSES` |
+| **Live Bet Addict** | `LIVE_001` | 10 of 12 bets placed in-play, one every 8–10 seconds | `live_bet_ratio_15min` | `RG_ALERT` / `HIGH_LIVE_RATIO` |
+| **Sharp Bettor** | `SHARP_001` | 8 bets at odds below 2, seconds apart | `avg_odds_15min` | `SHARP_BETTOR` / `SHARP_ODDS_PATTERN` |
+| **Stake Limit Breach** | `LIMIT_001` | £7,000 wagered in a single session | `total_stake_30min` | `STAKE_LIMIT` / `DAILY_LIMIT` |
+
+Each one exercises a different feature and a different rule, but the mechanism is identical every time — and you can see it happen in the highlighted cell of the feature table.
 
 > [!NOTE]
 > `Sharp Bettor` deliberately fires exactly 8 bets, not 9. One more would push `bets_last_10min` past 8
@@ -395,20 +424,19 @@ Trigger the remaining five archetypes and follow each one the same way, substitu
 
 > [!NOTE]
 > `Loss Streak` writes `current_loss_streak` only once the losing run ends — that is the
-> `MATCH_RECOGNIZE` semantics from Step 7. The archetype closes the pattern with a winning bet on
-> purpose so the feature actually materialises.
+> `MATCH_RECOGNIZE` semantics from Step 7. Watching this one in the Scoring Service is instructive:
+> the feature sits at `0` through the whole losing run, then jumps straight to `8` when the closing
+> winning bet completes the pattern. Event-driven features do not ramp; they arrive.
 
-<!---SECTION: Lab 5: Serving Features to Python-->
-Lab 5: Serving Features to Python
+<!---SECTION: Lab 5: One Store, Two Readers-->
+Lab 5: One Store, Two Readers
 ===
 
-The Flink temporal join is one consumer of the feature store. Real ML systems need another: a synchronous request-response API that a model server or application backend can call. Crucially, it must read the *same* store — a mirrored copy is a second source of truth and a new class of bug.
+You have now seen both consumers work. This lab is about why that matters architecturally, and about the API contract a model server or application backend would actually call.
 
-### Step 16: Score a player over REST
+### Step 17: Call the scoring API directly
 
-Go to the **Scoring Service** tab. This is a small Python service that connects to Fluss directly with the `pyfluss` client and does an O(1) primary-key lookup — no Flink involved at all.
-
-Click the `BOT_001` chip, or call it yourself from the **Web Shell**:
+The UI you used in Lab 4 is a thin wrapper over one REST call. Make it yourself from the **Web Shell**:
 
 ```bash
 curl -s -X POST http://localhost:9051/score \
@@ -429,36 +457,43 @@ The response carries the verdict, the reasons, and the full feature vector that 
 }
 ```
 
-Look at `response_time_ms`. Single-digit milliseconds, including the network hop — that is the point of an online store.
+Returning the features alongside the verdict is deliberate: an analyst reviewing a flagged bet needs to know *why*, and a model needs the same vector to be reproducible. Look at `response_time_ms` — single digits, including the network hop.
 
-### Step 17: Compare the two readers
-
-Fetch the raw vector without scoring:
+There is also a lookup-only endpoint, with no scoring applied:
 
 ```bash
 curl -s http://localhost:9051/features/BOT_001
 ```
 
-Now run the equivalent Flink query from Step 14 again. **The numbers match**, because both paths read the same Fluss row. The Flink job and the Python service share one feature definition, computed once. That is what makes training-serving skew avoidable here rather than something you monitor and hope about.
+### Step 18: Why one store matters
 
-### Step 18: Confirm the service is healthy
+You have now read the same feature vector three ways: through the Flink temporal join in the scoring job, through the Python client in the Scoring Service UI, and through a plain SQL `SELECT` in Step 15. All three agreed.
+
+That is not a coincidence, it is the design. There is exactly one place where `bets_last_10min` is defined — Job B1 — and one place where its value lives. Nothing is mirrored into a serving cache, so there is no window in which the online and offline views disagree, and no second definition to drift. Training-serving skew becomes structurally hard to introduce rather than something you monitor and hope about.
+
+Contrast this with the usual shape: a batch job computing features for training, a separate stream or service recomputing "the same" features for serving, and a reconciliation process nobody trusts.
+
+### Step 19: Confirm the service is healthy
+
+If the Scoring Service ever shows empty feature tables, check this first:
 
 ```bash
 curl -s http://localhost:9051/health
 ```
 
-`fluss_ready` must be `true`. If it is `false`, the service lost its connection to the Fluss coordinator at startup and every lookup returns an empty feature dict — note that `/score` still answers `200` in that state, with `features: {}` and a verdict of `NORMAL`, so a broken store looks deceptively like a quiet one.
+`fluss_ready` must be `true`. If it is `false`, the service failed to reach the Fluss coordinator at startup and never retries — and note that `/score` still answers `200` in that state, with `features: {}` and a verdict of `NORMAL`. A broken store looks deceptively like a quiet one, which is worth remembering when you build something like this yourself.
 
 > [!NOTE]
-> The service also runs a background Kafka consumer that scores every incoming bet independently of
-> your Flink job, visible in its **Kafka Stream** panel and at `GET /events`. It is a second, parallel
-> reader of the same store — useful for seeing that the store, not the pipeline, is the shared contract.
+> The **Kafka Stream** panel is fed by a background consumer inside the service itself, scoring every
+> bet independently of your Flink job and publishing to its own topic. It keeps working even if the
+> Flink scoring drafts were never started — a third reader of the same store, and a useful reminder
+> that the store, not any one pipeline, is the shared contract.
 
 <!---SECTION: Lab 6: Monitoring in Grafana-->
 Lab 6: Monitoring in Grafana
 ===
 
-### Step 19: Open the risk dashboard
+### Step 20: Open the risk dashboard
 
 Go to the **Grafana** tab and open the dashboard **Betting Features — Real-Time Risk Pipeline**. It refreshes every 5 seconds and reads from the `risk_score_log` table your PostgreSQL sink job populates.
 
@@ -470,7 +505,7 @@ The panels answer the questions an operations team actually asks:
 - **Bot Velocity**, **Loss Streak** and **RG Alerts** counters — one stat tile per rule family
 - **Avg Pipeline Latency** and **Pipeline Latency Over Time** — the end-to-end freshness budget, targeting under 500 ms
 
-### Step 20: Watch an anomaly appear end to end
+### Step 21: Watch an anomaly appear end to end
 
 Go back to the **Fraud Generator** and fire an archetype you have not used recently — **Loss Streak** is the most visually obvious.
 
