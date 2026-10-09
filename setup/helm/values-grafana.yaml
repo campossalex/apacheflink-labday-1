@@ -24,4 +24,4 @@ dashboardProviders:
 adminPassword: password
 
 # Include a sample Flink dashboard with:
-#   --set-file dashboards.default.flink-dashboard.json=grafana-dashboard.json
+#   --set-file dashboards.default.flink-dashboard.json=coffee-shop-grafana-dashboard.json

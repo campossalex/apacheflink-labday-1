@@ -1,4 +1,26 @@
-### Provide Ververica Platform License (free trial: www.ververica.com/enterprise-trial)
 vvp:
   license:
-    data: {} # paste license here
+    data: {
+  "kind" : "License",
+  "apiVersion" : "v1",
+  "metadata" : {
+    "id" : "b4793fc7-e009-4cb3-8e78-c6564de4d227",
+    "createdAt" : "2025-12-19T13:06:16.274338Z",
+    "annotations" : {
+      "signature" : "iQIcBAABCAAGBQJpRU3IAAoJEKio0mvM9xxRJGgQANO14SVtYMuh8gNnvouNcAbaNFS2mvkccLRDeGZqRBtVKy3zTFQ2UJ9GtNdSSsyLMwZFW/lPnPiEwyKom8CqV1zEClU0zU8qvBTFX7W5o1284HL4GFcN0xw434gzjLHPeWp8PLY+90H0n2sYKGkRvhMAySRs0lGkbj2wxFlv66SRl+LXd3YX5/gDaVeLPs7MQ54UzDh3+n7irgAqtXTHCUIZt8zHNKv5AB008DRb3qUfbHRWAJ66FtFB3V+mBwHMXDNHV+KF8iIsZ39AIdERnB+JHKE/6Cn1Cn36W3CeiVcv9CF6oel/LLucU/23sjpB5zms1RBGOxEeUA6claIE2Db90JZp7VIiRd3sBcHTXN+0oszHfwHgOFiHz4u4+eUJPE93nWQ9D6ixHKcbKTzyjqdYX27yOtuYQElnp/dEhGuZC/5olojHdDngXlw+d/B5z2Xy3MYuS56zC9snNxAPY3+0BG7qzzu/75P3p8u+Vo1BhnbGY22RbwRgHmIxrQEq5vMqIcLtHK9/B65WSYb0DMG63BwCteeKQYkIMVkSbPfCHJYY3V6vsOqnm0uACfTQLV7w35ybcg6NZzTK2E4pLbF74V9gQjlUACVNojtivy2Qza6G9u44b8O8IBgqIqytdUCfXSmheiMSIE3gObSS7jxJWUpmnMCZvLf7zaZTfDvV",
+      "licenseSpec" : "ewogICJsaWNlbnNlSWQiIDogImI0NzkzZmM3LWUwMDktNGNiMy04ZTc4LWM2NTY0ZGU0ZDIyNyIsCiAgImxpY2Vuc2VkVG8iIDogIkRhdGEgQXJ0aXNhbnMgR21iSCIsCiAgImV4cGlyZXMiIDogIjIwMjYtMTItMzFUMDA6MDA6MDBaIiwKICAicGFyYW1zIiA6IHsKICAgICJvdmVydXNlLmNwdSIgOiAiMCIsCiAgICAicXVvdGEudHlwZSIgOiAiTElNSVRFRCIsCiAgICAicXVvdGEuY3B1IiA6ICI1MDAiLAogICAgInRyaWFsIiA6ICJmYWxzZSIsCiAgICAibm90Rm9yUmVzYWxlIiA6ICJ0cnVlIgogIH0KfQ=="
+    }
+  },
+  "spec" : {
+    "licenseId" : "b4793fc7-e009-4cb3-8e78-c6564de4d227",
+    "licensedTo" : "Data Artisans GmbH",
+    "expires" : "2026-12-31T00:00:00Z",
+    "params" : {
+      "overuse.cpu" : "0",
+      "quota.type" : "LIMITED",
+      "quota.cpu" : "500",
+      "trial" : "false",
+      "notForResale" : "true"
+    }
+  }
+}

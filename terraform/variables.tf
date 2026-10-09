@@ -15,7 +15,8 @@ variable "instance_count" {
 
 # EC2 instance AMI
 variable "instance_ami" {
-  default = "ami-07801e143d22c782d"
+#  default = "ami-07801e143d22c782d"
+  default = "ami-00702ba1857f5b2a1"
 }
 
 # EC2 instance type
