@@ -100,7 +100,6 @@ Right-click on the statement, and then select `Run` to execute the SQL statement
 > [!NOTE]
 > Open the **Kafka** tab if you'd like to see the raw JSON messages on the `orders_log` topic before they reach Flink.
 
-![lab1-redpanda-topic.png](screenshots/lab1-redpanda-topic.png)
 
 ### Step 4: Run the source → sink job
 
@@ -137,8 +136,6 @@ Then confirm the query will execute in the default **Session Cluster**
 You will see order events appearing in real time, with `status` progressing through `PLACED` → `PAID` → `SHIPPED` → `DELIVERED` (some orders will show `CANCELLED` instead). To stop the query, click the `||` (pause) button above the result grid.
 
 You should see something like this:
-
-![lab1-orders-log.png](screenshots/lab1-orders-log.png)
 
 > [!NOTE]
 > Unlike Kafka, the Fluss Log table retains data indefinitely. There is no retention window to worry about — this makes it a reliable long-term event store, and it's exactly what makes tiering to Iceberg in Lab 3 safe: nothing is lost in the handoff. Kafka is the ingestion buffer; Fluss is the durable, queryable copy.
@@ -232,8 +229,6 @@ Then confirm the query will execute in the default **Session Cluster**
 
 You should see `500`, the total number of products for this e-commerce company.
 
-![lab2-product-count.png](screenshots/lab2-product-count.png)
-
 ### Step 9: Create the orders_enriched Log table
 
 This Log table will store every order event permanently, enriched with product metadata. It's the table you'll tier into Iceberg in the next lab — the single source of truth for both real-time and historical analytics.
@@ -291,8 +286,6 @@ Stop the query with the `||` button once you see rows carrying `product_name` an
 
 You should see something like this:
 
-![lab2-orders-enriched.png](screenshots/lab2-orders-enriched.png)
-
 > [!WARNING]
 > Don't simplify this to a plain `JOIN ... ON` without `FOR SYSTEM_TIME AS OF`. `product_lookup` is a PK (upsert) table, so a regular join against it produces a changelog stream that can include UPDATE/DELETE records — and `orders_enriched` is an append-only Log table, which can't accept them. Removing the temporal-join clause fails with: `Table sink 'fluss.orders.orders_enriched' doesn't support consuming update and delete changes`. The `FOR SYSTEM_TIME AS OF t.proc_time` clause is what makes this a point-in-time lookup (one output row per input row, insert-only) instead of a stateful two-sided join — it's required, not optional boilerplate.
 > 
@@ -309,8 +302,6 @@ Your lab environment already has a **Fluss Datalake Tiering Service** deployed a
 Go to the **Ververica** tab → **Deployments**, open `fluss-tiering-service`, and click **Start**. Leave it running for the rest of the workshop — it will pick up any table you enable tiering on in the next step.
 
 Once started, the tiering service runs next to the pipeline jobs:
-
-![lab3-flink-jobs.png](screenshots/lab3-flink-jobs.png)
 
 > [!NOTE]
 > This is one service, shared across every Fluss table in this cluster.  
@@ -330,8 +321,6 @@ SET ('table.datalake.enabled' = 'true', 'table.datalake.freshness' = '30s');
 Right-click on the statement, and then select `Run` to execute the SQL statement.
 
 To check it, run `SHOW CREATE TABLE fluss.orders.orders_enriched;`: the table's options now include `'table.datalake.enabled' = 'true'`.
-
-![lab3-show-create.png](screenshots/lab3-show-create.png)
 
 ### Step 13: Verify the tiered data landed in Iceberg
 
@@ -393,8 +382,6 @@ Then confirm the query will execute in the default **Session Cluster**
 You didn't change a thing, but under the hood something important happened: Flink now performs a **union read** — it transparently merges the freshest, not-yet-tiered rows still in Fluss with the already-tiered historical rows in Iceberg, and returns them as one seamless result. No query rewrite, no manual UNION, no awareness required from you that tiering is even happening.
 
 Compare it with Iceberg alone: counting ``fluss.orders.`orders_enriched$lake` `` (the Iceberg side) next to `fluss.orders.orders_enriched` (the union read), in batch mode, shows the union read ahead in both events and latest event time.
-
-![lab4-union-read.png](screenshots/lab4-union-read.png)
 
 ### Step 16: Query the same table from Trino
 
@@ -501,8 +488,6 @@ Click on `Configurations` button again to close the configuration panel.
 The `INSERT INTO` statement above it is a long-running job, so it needs the same treatment as Step 4: select it, click `Save As`, and name the draft `revenue-analytics-sink`. Then `Deploy` it, and `Start` it from **Deployments**.
 
 Once windows close, the warehouse fills with one row per window and category:
-
-![lab5-revenue-rows.png](screenshots/lab5-revenue-rows.png)
 
 ### Step 20: Import and explore the dashboard
 
