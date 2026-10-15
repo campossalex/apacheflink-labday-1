@@ -1,0 +1,434 @@
+{
+  "title": "Betting Features \u2014 Real-Time Risk Pipeline",
+  "uid": "betting-features-v1",
+  "schemaVersion": 36,
+  "version": 1,
+  "refresh": "5s",
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "panels": [
+    {
+      "id": 1,
+      "title": "Risk Category Distribution",
+      "type": "piechart",
+      "gridPos": {
+        "x": 0,
+        "y": 0,
+        "w": 6,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT risk_level AS metric, COUNT(*) AS value FROM public.risk_score_log WHERE score_time BETWEEN $__timeFrom() AND $__timeTo() GROUP BY risk_level",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "pieType": "donut",
+        "displayLabels": [
+          "name",
+          "percent"
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "title": "Alerts per Minute",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 6,
+        "y": 0,
+        "w": 10,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT DATE_TRUNC('minute', score_time) AS time, risk_level, COUNT(*) AS alerts FROM public.risk_score_log WHERE score_time BETWEEN $__timeFrom() AND $__timeTo() AND risk_level != 'NORMAL' GROUP BY 1, 2 ORDER BY 1",
+          "format": "time_series"
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "title": "Rule Trigger Frequency",
+      "type": "barchart",
+      "gridPos": {
+        "x": 16,
+        "y": 0,
+        "w": 8,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT UNNEST(STRING_TO_ARRAY(risk_reasons, ',')) AS rule, COUNT(*) AS triggers FROM public.risk_score_log WHERE score_time BETWEEN $__timeFrom() AND $__timeTo() AND risk_reasons IS NOT NULL AND risk_reasons != '' GROUP BY 1 ORDER BY 2 DESC LIMIT 10",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 4,
+      "title": "Top 10 Active Risk Players",
+      "type": "table",
+      "gridPos": {
+        "x": 0,
+        "y": 8,
+        "w": 14,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT player_id, risk_level, risk_reasons, score_time FROM public.risk_score_log WHERE risk_level != 'NORMAL' AND score_time BETWEEN $__timeFrom() AND $__timeTo() ORDER BY score_time DESC LIMIT 20",
+          "format": "table"
+        }
+      ],
+      "options": {
+        "sortBy": [
+          {
+            "displayName": "score_time",
+            "desc": true
+          }
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "title": "Geo-Mismatch Alerts",
+      "type": "timeseries",
+      "gridPos": {
+        "x": 14,
+        "y": 8,
+        "w": 10,
+        "h": 8
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT DATE_TRUNC('minute', score_time) AS time, COUNT(*) AS count FROM public.risk_score_log WHERE risk_reasons LIKE '%GEO_MISMATCH%' AND score_time BETWEEN $__timeFrom() AND $__timeTo() GROUP BY 1 ORDER BY 1",
+          "format": "time_series"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "fixedColor": "orange",
+            "mode": "fixed"
+          }
+        }
+      }
+    },
+    {
+      "id": 6,
+      "title": "Loss Streak Alerts (last 10 min)",
+      "type": "stat",
+      "gridPos": {
+        "x": 0,
+        "y": 16,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) FROM public.risk_score_log WHERE risk_reasons LIKE '%LOSS_STREAK%' AND score_time BETWEEN $__timeFrom() AND $__timeTo()",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 5
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 7,
+      "title": "Bot Velocity Alerts (last 10 min)",
+      "type": "stat",
+      "gridPos": {
+        "x": 4,
+        "y": 16,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) FROM public.risk_score_log WHERE risk_reasons LIKE '%BOT_VELOCITY%' AND score_time BETWEEN $__timeFrom() AND $__timeTo()",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "red",
+                "value": 1
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 8,
+      "title": "RG Alerts (last 10 min)",
+      "type": "stat",
+      "gridPos": {
+        "x": 8,
+        "y": 16,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) FROM public.risk_score_log WHERE risk_level = 'RG_ALERT' AND score_time BETWEEN $__timeFrom() AND $__timeTo()",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1
+              },
+              {
+                "color": "red",
+                "value": 3
+              }
+            ]
+          }
+        }
+      }
+    },
+    {
+      "id": 9,
+      "title": "Total Alerts Today",
+      "type": "stat",
+      "gridPos": {
+        "x": 12,
+        "y": 16,
+        "w": 4,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "targets": [
+        {
+          "rawSql": "SELECT COUNT(*) FROM public.risk_score_log WHERE risk_level != 'NORMAL' AND score_time BETWEEN $__timeFrom() AND $__timeTo()",
+          "format": "table"
+        }
+      ]
+    },
+    {
+      "id": 10,
+      "title": "Avg Pipeline Latency",
+      "type": "gauge",
+      "gridPos": {
+        "x": 16,
+        "y": 16,
+        "w": 8,
+        "h": 4
+      },
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "description": "Average milliseconds from bet event_ts to risk score (stored in risk_score_log). Target: < 500 ms",
+      "targets": [
+        {
+          "rawSql": "SELECT AVG(enrichment_lag_ms) AS avg_latency_ms FROM public.risk_score_log WHERE score_time BETWEEN $__timeFrom() AND $__timeTo() AND enrichment_lag_ms IS NOT NULL",
+          "format": "table"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "unit": "ms",
+          "thresholds": {
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          },
+          "max": 3000
+        }
+      }
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "betting_db"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisBorderShow": false,
+            "axisCenteredZero": false,
+            "axisColorMode": "text",
+            "axisLabel": "ms",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "barWidthFactor": 0.6,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "insertNulls": false,
+            "lineInterpolation": "smooth",
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "auto",
+            "showValues": false,
+            "spanNulls": false,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "line"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": 0
+              },
+              {
+                "color": "yellow",
+                "value": 500
+              },
+              {
+                "color": "red",
+                "value": 2000
+              }
+            ]
+          },
+          "unit": "ms"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 23,
+        "x": 0,
+        "y": 29
+      },
+      "id": 11,
+      "options": {
+        "legend": {
+          "calcs": [
+            "mean",
+            "max"
+          ],
+          "displayMode": "list",
+          "placement": "bottom",
+          "showLegend": true
+        },
+        "tooltip": {
+          "hideZeros": false,
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "12.3.1",
+      "targets": [
+        {
+          "format": "time_series",
+          "rawSql": "SELECT DATE_TRUNC('minute', score_time) AS time, AVG(enrichment_lag_ms) AS avg_lag_ms FROM public.risk_score_log WHERE score_time BETWEEN $__timeFrom() AND $__timeTo() AND enrichment_lag_ms IS NOT NULL GROUP BY 1 ORDER BY 1",
+          "refId": "A"
+        }
+      ],
+      "title": "Pipeline Latency Over Time",
+      "type": "timeseries"
+    }
+  ]
+}
